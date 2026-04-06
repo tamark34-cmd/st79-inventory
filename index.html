@@ -76,7 +76,7 @@
             
             ctx.fillStyle = "#ffffff";
             ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.font = "bold 75px Arial";
-            ctx.fillText("ST20", 256, 440);
+            ctx.fillText("ST79", 256, 440);
             
             const iconBase64 = canvas.toDataURL('image/png');
             const appleIcon = document.createElement('link');
@@ -881,9 +881,9 @@
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InllZWhldmViY2NzdHl1ZmxqZG9yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0NTMzMTcsImV4cCI6MjA5MTAyOTMxN30.t1UDcKKeCWMR8SNUj3t0L9Gp5IiYJiFac2LdO7jw_Do";
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
-        const LS_PENDING_KEY = "st20_queue_add";
-        const LS_QA_PENDING_KEY = "st20_queue_qa";
-        const DB_NAME = 'ST20_MasterDB';
+        const LS_PENDING_KEY = "st79_queue_add";
+        const LS_QA_PENDING_KEY = "st79_queue_qa";
+        const DB_NAME = 'ST79_MasterDB';
         const DB_VERSION = 2;
         const STORE_NAME = 'masterCache';
         const STORE_INV = 'inventoryCache';
@@ -909,7 +909,7 @@
         let globalHistoryData = []; // เก็บข้อมูลประวัติชั่วคราว
         
         // Offline Queue Management
-        let offlineTasks = JSON.parse(localStorage.getItem('st20_offline_tasks') || '[]');
+        let offlineTasks = JSON.parse(localStorage.getItem('st79_offline_tasks') || '[]');
 
 
         /* ==========================================================================
@@ -1024,7 +1024,7 @@
             }
             
             offlineTasks = failedTasks;
-            localStorage.setItem('st20_offline_tasks', JSON.stringify(offlineTasks));
+            localStorage.setItem('st79_offline_tasks', JSON.stringify(offlineTasks));
             updateOfflineIndicator();
             showLoader(false);
             
@@ -1044,7 +1044,7 @@
                 if(error) throw error;
             } else {
                 offlineTasks.push({action: 'insert', table, payload});
-                localStorage.setItem('st20_offline_tasks', JSON.stringify(offlineTasks));
+                localStorage.setItem('st79_offline_tasks', JSON.stringify(offlineTasks));
                 updateOfflineIndicator();
                 showToast("ออฟไลน์: บันทึกข้อมูลเข้าคิวแล้ว", false);
             }
@@ -1056,7 +1056,7 @@
                 if(error) throw error;
             } else {
                 offlineTasks.push({action: 'update', table, payload, eqCol, eqVal});
-                localStorage.setItem('st20_offline_tasks', JSON.stringify(offlineTasks));
+                localStorage.setItem('st79_offline_tasks', JSON.stringify(offlineTasks));
                 updateOfflineIndicator();
             }
         }
@@ -1067,7 +1067,7 @@
                 if(error) throw error;
             } else {
                 offlineTasks.push({action: 'delete', table, eqCol, eqVal});
-                localStorage.setItem('st20_offline_tasks', JSON.stringify(offlineTasks));
+                localStorage.setItem('st79_offline_tasks', JSON.stringify(offlineTasks));
                 updateOfflineIndicator();
             }
         }
@@ -1077,7 +1077,7 @@
                 return await supabaseClient.rpc(fn, params);
             } else {
                 offlineTasks.push({action: 'rpc', fn, params});
-                localStorage.setItem('st20_offline_tasks', JSON.stringify(offlineTasks));
+                localStorage.setItem('st79_offline_tasks', JSON.stringify(offlineTasks));
                 updateOfflineIndicator();
                 return { error: null }; // จำลองว่าสำเร็จตอนออฟไลน์
             }
@@ -3161,7 +3161,7 @@
             
             p.innerHTML = `
                 <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; font-family:sans-serif; text-align:center;">
-                    <div style="font-size: 24px; font-weight: bold; margin-bottom: 5px; color: #64748b;">ST20 Location Tag</div>
+                    <div style="font-size: 24px; font-weight: bold; margin-bottom: 5px; color: #64748b;">ST79 Location Tag</div>
                     <div style="font-size: 80px; font-weight: 900; margin-bottom: 40px; color: #0f172a; letter-spacing: 2px;">${bay}</div>
                     <div id="qrCodeContainer" style="padding: 20px; background: white; border: 4px solid #e2e8f0; border-radius: 20px;"></div>
                 </div>
