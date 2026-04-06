@@ -1,0 +1,3312 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0ea5e9">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>ST20 Top Stock Inventory</title>
+    
+    <!-- ========================================== -->
+    <!-- 1. EXTERNAL LIBRARIES & CONFIGURATIONS     -->
+    <!-- ========================================== -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- เพิ่มไลบรารี SheetJS สำหรับอ่านไฟล์ Excel (.xlsx, .xls, .csv) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <!-- เพิ่มไลบรารี QRCode.js สำหรับสร้าง QR Code ติดชั้นวาง -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: { 
+                extend: { 
+                    colors: { 
+                        primary: '#0ea5e9', // Sky 500
+                        primaryDark: '#0284c7', // Sky 600
+                        secondary: '#f43f5e', // Rose 500
+                        // Re-map indigo to Sky Blue scale for a fresh, modern look
+                        indigo: { 50: '#f0f9ff', 100: '#e0f2fe', 200: '#bae6fd', 300: '#7dd3fc', 400: '#38bdf8', 500: '#0ea5e9', 600: '#0284c7', 700: '#0369a1', 800: '#075985', 900: '#0c4a6e' },
+                        // Re-map teal to Emerald scale
+                        teal: { 50: '#ecfdf5', 100: '#d1fae5', 200: '#a7f3d0', 300: '#6ee7b7', 400: '#34d399', 500: '#10b981', 600: '#059669', 700: '#047857', 800: '#065f46', 900: '#064e3b' },
+                        // Re-map slate to Zinc scale for premium neutral grays
+                        slate: { 50: '#fafafa', 100: '#f4f4f5', 200: '#e4e4e7', 300: '#d4d4d8', 400: '#a1a1aa', 500: '#71717a', 600: '#52525b', 700: '#3f3f46', 800: '#27272a', 900: '#18181b' }
+                    }, 
+                    scale: { '250': '2.5' } 
+                } 
+            }
+        }
+    </script>
+    
+    <!-- Dark Mode Init Script -->
+    <script>
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else { 
+            document.documentElement.classList.remove('dark'); 
+        }
+    </script>
+
+    <!-- PWA Auto-Generator -->
+    <script>
+        (function() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 512; canvas.height = 512;
+            const ctx = canvas.getContext('2d');
+            
+            const grd = ctx.createLinearGradient(0, 0, 512, 512);
+            grd.addColorStop(0, "#0369a1"); 
+            grd.addColorStop(1, "#0ea5e9"); 
+            ctx.fillStyle = grd;
+            ctx.fillRect(0, 0, 512, 512);
+            
+            ctx.fillStyle = "#bae6fd"; ctx.beginPath(); ctx.moveTo(256, 110); ctx.lineTo(386, 180); ctx.lineTo(256, 250); ctx.lineTo(126, 180); ctx.closePath(); ctx.fill();
+            ctx.fillStyle = "#0ea5e9"; ctx.beginPath(); ctx.moveTo(126, 180); ctx.lineTo(256, 250); ctx.lineTo(256, 380); ctx.lineTo(126, 310); ctx.closePath(); ctx.fill();
+            ctx.fillStyle = "#0284c7"; ctx.beginPath(); ctx.moveTo(256, 250); ctx.lineTo(386, 180); ctx.lineTo(386, 310); ctx.lineTo(256, 380); ctx.closePath(); ctx.fill();
+            ctx.fillStyle = "#e0f2fe"; ctx.beginPath(); ctx.moveTo(256, 120); ctx.lineTo(370, 180); ctx.lineTo(256, 240); ctx.lineTo(142, 180); ctx.closePath(); ctx.fill();
+            
+            ctx.fillStyle = "#ffffff";
+            ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.font = "bold 75px Arial";
+            ctx.fillText("ST20", 256, 440);
+            
+            const iconBase64 = canvas.toDataURL('image/png');
+            const appleIcon = document.createElement('link');
+            appleIcon.rel = 'apple-touch-icon'; 
+            appleIcon.href = iconBase64; 
+            document.head.appendChild(appleIcon);
+            
+            const manifest = {
+                name: "ST79 Top Stock Inventory", 
+                short_name: "TopStock", 
+                start_url: location.pathname,
+                display: "standalone", 
+                background_color: "#18181b", 
+                theme_color: "#0ea5e9",
+                icons: [{ src: iconBase64, sizes: "512x512", type: "image/png", purpose: "any maskable" }]
+            };
+            const manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+            const manifestLink = document.createElement('link');
+            manifestLink.rel = 'manifest'; 
+            manifestLink.href = URL.createObjectURL(manifestBlob);
+            document.head.appendChild(manifestLink);
+        })();
+    </script>
+
+    <!-- ========================================== -->
+    <!-- 2. CUSTOM CSS STYLES                       -->
+    <!-- ========================================== -->
+    <style>
+        /* Base Styles */
+        body { 
+            font-family: 'Prompt', sans-serif; 
+            -webkit-tap-highlight-color: transparent; 
+            overflow-x: hidden; 
+        }
+
+        /* Navigation Views */
+        .view-section { display: none; opacity: 0; }
+        .view-section.active { display: block; opacity: 1; transition: opacity 0.2s ease-in; }
+        .stock-card { will-change: transform; transition: transform 0.1s ease; }
+        
+        /* Print Styles */
+        #printArea { display: none; }
+        @media print {
+            @page { size: A4 portrait; margin: 0; }
+            body * { visibility: hidden; }
+            #printArea, #printArea * { visibility: visible; }
+            #printArea { display: block !important; position: absolute; left: 0; top: 0; width: 100%; background: white !important; color: black !important;}
+            .no-print { display: none !important; }
+        }
+
+        /* Animations */
+        @keyframes highlightPulse { 
+            0% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.7); background-color: #e0e7ff; } 
+            100% { box-shadow: 0 0 0 15px rgba(79, 70, 229, 0); background-color: transparent; } 
+        }
+        .highlight-pulse { animation: highlightPulse 2s ease-out; }
+
+        @keyframes fadeInUp { 
+            from { opacity: 0; transform: translateY(15px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        .animate-fade-in-up { animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+        @keyframes bounceIn { 
+            0% { transform: scale(0.9); opacity: 0; } 
+            100% { transform: scale(1); opacity: 1; } 
+        }
+        .modal-animate-in { animation: bounceIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+
+        @keyframes slideUpFade { 
+            0% { opacity: 0; transform: translateY(20px) scale(0.9); } 
+            100% { opacity: 1; transform: translateY(0) scale(1); } 
+        }
+        @keyframes fadeOutDown { 
+            0% { opacity: 1; transform: translateY(0) scale(1); } 
+            100% { opacity: 0; transform: translateY(10px) scale(0.9); } 
+        }
+        .toast-enter { animation: slideUpFade 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .toast-leave { animation: fadeOutDown 0.3s ease-in forwards; }
+
+        /* Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; }
+
+        /* Cards & Buttons */
+        .hover-card { 
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); 
+            will-change: transform, box-shadow; 
+        }
+        .hover-card:hover { 
+            transform: translateY(-4px) scale(1.02); 
+            box-shadow: 0 15px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1); 
+            z-index: 10; 
+        }
+        .hover-card:active { transform: translateY(0) scale(0.98); }
+        .dark .hover-card:hover { box-shadow: 0 15px 30px -5px rgba(0,0,0,0.4), 0 8px 10px -6px rgba(0,0,0,0.3); }
+
+        .dash-btn { transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); position: relative; overflow: visible; }
+        .dash-btn::before { 
+            content: ""; position: absolute; inset: 0; border-radius: inherit; 
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1); opacity: 0; transition: opacity 0.3s; pointer-events: none; 
+        }
+        .dash-btn:hover::before { opacity: 1; }
+
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+        
+        .nav-item { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .nav-item.active { color: #4f46e5; font-weight: bold; transform: translateY(-4px); }
+        .dark .nav-item.active { color: #818cf8; }
+        .nav-item.active i { filter: drop-shadow(0 4px 6px rgba(79, 70, 229, 0.4)); }
+
+        .modal-active { opacity: 1 !important; visibility: visible !important; pointer-events: auto !important; }
+        .modal-box-active { transform: scale(1) !important; }
+    </style>
+</head>
+<body class="text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-900 transition-colors duration-300 h-screen flex flex-col relative overflow-hidden">
+
+    <!-- Theme Toggle -->
+    <button id="themeToggleBtn" onclick="toggleTheme()" class="fixed top-3 left-4 w-10 h-10 bg-white/90 backdrop-blur-md dark:bg-slate-800/90 text-slate-800 dark:text-amber-400 border border-slate-200 dark:border-slate-700 rounded-full shadow-md flex items-center justify-center z-[99990] hover:scale-110 active:scale-90 transition-all duration-300">
+        <i class="fas fa-moon text-base dark:hidden block"></i>
+        <i class="fas fa-sun text-base hidden dark:block"></i>
+    </button>
+
+    <!-- ========================================== -->
+    <!-- 3. LOGIN INTERFACE                         -->
+    <!-- ========================================== -->
+    <div id="login-container" class="h-screen w-full flex items-center justify-center bg-gradient-to-br from-slate-100 via-white to-indigo-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 absolute inset-0 z-[9999] p-4 transition-colors duration-500">
+        
+        <!-- Login & Register Card (Combined) -->
+        <div id="login-card" class="bg-white/90 backdrop-blur-2xl dark:bg-slate-800/90 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.3)] w-full max-w-sm max-h-[95vh] flex flex-col animate-fade-in-up border border-white/60 dark:border-slate-700/60 overflow-hidden relative z-10">
+            
+            <!-- Tabs -->
+            <div class="flex border-b border-slate-200 dark:border-slate-700 shrink-0">
+                <button id="tab-login" onclick="switchLoginTab('login')" class="flex-1 py-3.5 text-sm font-bold text-primary border-b-2 border-primary bg-indigo-50/50 dark:bg-slate-800 transition-all">เข้าสู่ระบบ</button>
+                <button id="tab-register" onclick="switchLoginTab('register')" class="flex-1 py-3.5 text-sm font-bold text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white border-b-2 border-transparent bg-white dark:bg-slate-900 transition-all">ลงทะเบียนใช้งาน</button>
+            </div>
+            
+            <div class="p-6 sm:p-8 overflow-y-auto custom-scrollbar">
+                <!-- Logo -->
+                <div class="w-16 h-16 mx-auto mb-4 flex items-center justify-center shrink-0">
+                    <svg width="100%" height="100%" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M22 14L34 20L22 26L10 20L22 14Z" class="fill-indigo-300 dark:fill-indigo-500"/>
+                      <path d="M10 20V32L22 38V26L10 20Z" class="fill-indigo-600 dark:fill-indigo-400"/>
+                      <path d="M34 20V32L22 38V26L34 20Z" class="fill-indigo-800 dark:fill-indigo-600"/>
+                      <path d="M42 26L54 32L42 38L30 32L42 26Z" class="fill-teal-300 dark:fill-teal-500"/>
+                      <path d="M30 32V44L42 50V38L30 32Z" class="fill-teal-500 dark:fill-teal-400"/>
+                      <path d="M54 32V44L42 50V38L54 32Z" class="fill-teal-700 dark:fill-teal-600"/>
+                    </svg>
+                </div>
+                <h2 class="text-xl font-bold text-center text-slate-800 dark:text-white mb-6 tracking-tight">ST79 Top Stock</h2>
+                
+                <!-- Login Form -->
+                <div id="form-login" class="space-y-4 animate-fade-in-up">
+                    <div>
+                        <label class="text-xs font-semibold text-slate-500 uppercase block mb-1">Username</label>
+                        <input type="text" id="genUsername" class="w-full bg-slate-50 dark:bg-slate-900 border dark:border-slate-700 p-3 rounded-xl outline-none text-sm focus:border-primary transition-colors">
+                    </div>
+                    <div>
+                        <label class="text-xs font-semibold text-slate-500 uppercase block mb-1">Password</label>
+                        <input type="password" id="genPassword" class="w-full bg-slate-50 dark:bg-slate-900 border dark:border-slate-700 p-3 rounded-xl outline-none text-sm focus:border-primary transition-colors">
+                    </div>
+                    <div class="text-right">
+                        <button onclick="switchLoginTab('forgot')" class="text-xs text-primary dark:text-indigo-400 font-bold hover:underline">ลืมรหัสผ่าน?</button>
+                    </div>
+                    <button onclick="doRealLogin()" class="w-full bg-gradient-to-r from-primary to-indigo-500 hover:from-primaryDark text-white py-3.5 rounded-xl font-bold shadow-md mt-2 transition-all">เข้าใช้งานระบบ</button>
+                </div>
+                
+                <!-- Register Form -->
+                <div id="form-register" class="space-y-3 hidden animate-fade-in-up">
+                    <div>
+                        <label class="text-xs font-semibold text-slate-500 uppercase block mb-1">Username (ใช้ล็อกอิน)</label>
+                        <input type="text" id="regUsername" class="w-full bg-slate-50 dark:bg-slate-900 border dark:border-slate-700 p-2.5 rounded-xl outline-none text-sm focus:border-primary transition-colors">
+                    </div>
+                    <div>
+                        <label class="text-xs font-semibold text-slate-500 uppercase block mb-1">ชื่อ (ไม่ต้องใส่นามสกุล)</label>
+                        <input type="text" id="regName" class="w-full bg-slate-50 dark:bg-slate-900 border dark:border-slate-700 p-2.5 rounded-xl outline-none text-sm focus:border-primary transition-colors">
+                    </div>
+                    <div>
+                        <label class="text-xs font-semibold text-slate-500 uppercase block mb-1">แผนก (Division)</label>
+                        <select id="regDivision" class="w-full bg-slate-50 dark:bg-slate-900 border dark:border-slate-700 p-2.5 rounded-xl outline-none text-sm appearance-none focus:border-primary transition-colors">
+                            <option value="">-- เลือกแผนก --</option>
+                            <option value="FF">FF</option>
+                            <option value="DF">DF</option>
+                            <option value="NF">NF</option>
+                            <option value="O2O">O2O</option>
+                            <option value="OTHER">OTHER</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs font-semibold text-slate-500 uppercase block mb-1">Password</label>
+                        <input type="password" id="regPass" class="w-full bg-slate-50 dark:bg-slate-900 border dark:border-slate-700 p-2.5 rounded-xl outline-none text-sm focus:border-primary transition-colors">
+                    </div>
+                    <button onclick="doRegister()" class="w-full bg-teal-500 hover:bg-teal-600 text-white py-3.5 rounded-xl font-bold shadow-md mt-4 transition-all">ลงทะเบียน</button>
+                </div>
+
+                <!-- Forgot Password Form -->
+                <div id="form-forgot" class="space-y-4 hidden animate-fade-in-up">
+                    <button onclick="switchLoginTab('login')" class="text-slate-400 hover:text-slate-600 dark:hover:text-white mb-2 text-sm font-medium flex items-center gap-2"><i class="fas fa-arrow-left"></i> กลับไปล็อกอิน</button>
+                    <h3 class="text-xl font-bold mb-1">รีเซ็ตรหัสผ่าน</h3>
+                    <p class="text-xs text-slate-500 mb-4">กรอก Username ของคุณเพื่อส่งคำขอรีเซ็ตรหัสผ่านให้แอดมินอนุมัติ</p>
+                    <div>
+                        <label class="text-xs font-semibold text-slate-500 uppercase block mb-1">Username ของคุณ</label>
+                        <input type="text" id="forgotUsername" class="w-full bg-slate-50 dark:bg-slate-900 border dark:border-slate-700 p-3 rounded-xl outline-none text-sm focus:border-amber-500 transition-colors">
+                    </div>
+                    <button onclick="requestPasswordReset()" class="w-full bg-amber-500 hover:bg-amber-600 text-white py-3.5 rounded-xl font-bold shadow-md mt-2 transition-all">ส่งคำขอรีเซ็ตรหัสผ่าน</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Credit Footer (Login Page) -->
+        <div class="absolute bottom-8 left-0 w-full text-center pointer-events-none animate-fade-in-up" style="animation-delay: 300ms;">
+            <div class="inline-flex items-center justify-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm px-3 py-1.5 rounded-full border border-slate-200/50 dark:border-slate-700/50 shadow-sm">
+                <span>Created by</span>
+                <i class="fas fa-bolt text-amber-400"></i>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary via-purple-500 to-pink-500 font-black drop-shadow-sm">Pornpichit SSS.20</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- 4. MAIN APP CONTAINER                      -->
+    <!-- ========================================== -->
+    <div id="app-container" class="hidden h-screen w-full flex-col relative pt-safe bg-slate-50 dark:bg-slate-900">
+        
+        <!-- Global Loader -->
+        <div id="bgLoader" class="fixed top-16 left-1/2 -translate-x-1/2 bg-slate-800/95 dark:bg-white/95 backdrop-blur-md shadow-lg rounded-full px-4 py-2 flex items-center gap-2 z-[9990] transition-all transform -translate-y-24 opacity-0 pointer-events-none">
+            <i class="fas fa-circle-notch animate-spin text-primary dark:text-primary text-sm"></i>
+            <span id="bgLoaderText" class="text-xs font-semibold text-white dark:text-slate-800">Processing...</span>
+        </div>
+
+        <!-- Header -->
+        <header id="mainHeader" class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl text-slate-800 dark:text-white border-b border-slate-200/80 dark:border-slate-700/80 shadow-sm flex-none pl-16 pr-4 py-3 flex items-center justify-between z-50">
+            <div class="flex items-center min-w-[40px]">
+                <!-- เอาปุ่ม btnBack ออกจาก Header ส่วนนี้ -->
+            </div>
+            <div class="flex-grow text-center flex flex-col items-center justify-center">
+                <h1 class="text-base sm:text-lg font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-primary to-indigo-500 dark:from-indigo-400 dark:to-purple-400 flex items-center justify-center gap-2">
+                    ST20 Top Stock
+                    <i id="offlineIndicator" class="fas fa-wifi text-red-500 text-xs hidden animate-pulse" title="กำลังใช้งานออฟไลน์ (มีข้อมูลรอซิงค์)"></i>
+                </h1>
+                <button onclick="openChangePasswordModal()" class="text-[10px] text-slate-500 font-medium hover:text-primary transition-colors flex items-center mt-0.5 group">
+                    <i class="fas fa-user-circle mr-1"></i><span id="userNameDisplay">...</span>
+                    <i class="fas fa-pen text-[8px] ml-1 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                </button>
+            </div>
+            <div class="flex items-center justify-end min-w-[70px] gap-1">
+                <button onclick="toggleFullScreen()" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center justify-center text-slate-500">
+                    <i class="fas fa-expand" id="fullscreenIcon"></i>
+                </button>
+                <button onclick="signOut()" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full hover:bg-red-50 flex items-center justify-center text-red-500">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="flex-grow overflow-y-auto container mx-auto max-w-md p-4 pb-24 relative custom-scrollbar" id="mainContainer">
+            
+            <!-- SECTION: DASHBOARD / HOME -->
+            <section id="view-home" class="view-section active space-y-4 pt-2">
+                <div class="flex justify-between items-end mb-6 animate-fade-in-up">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-800 dark:text-white">Dashboard</h2>
+                        <p class="text-sm text-slate-500" id="realTimeDate">วัน, 00 เดือน 0000</p>
+                    </div>
+                    <div class="text-right">
+                        <div id="realTimeClock" class="text-xl font-bold text-primary dark:text-indigo-400 font-mono">00:00:00</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-3 mb-5 animate-fade-in-up">
+                    <div class="hover-card relative overflow-hidden bg-gradient-to-br from-primary to-purple-600 p-4 rounded-3xl flex flex-col items-center text-center shadow-[0_8px_20px_rgba(14,165,233,0.2)] dark:shadow-[0_8px_20px_rgba(14,165,233,0.15)] group">
+                        <span class="text-[10px] text-white/80 font-bold uppercase z-10">รายการสินค้า</span>
+                        <span class="text-2xl font-black text-white z-10" id="statTotalItems">0</span>
+                    </div>
+                    <div class="hover-card relative overflow-hidden bg-gradient-to-br from-teal-400 to-emerald-600 p-4 rounded-3xl flex flex-col items-center text-center shadow-[0_8px_20px_rgba(16,185,129,0.2)] dark:shadow-[0_8px_20px_rgba(16,185,129,0.15)] group">
+                        <span class="text-[10px] text-white/80 font-bold uppercase z-10">รวม (ชิ้น)</span>
+                        <span class="text-2xl font-black text-white z-10" id="statTotalQty">0</span>
+                    </div>
+                    <div class="hover-card relative overflow-hidden bg-gradient-to-br from-orange-400 to-rose-500 p-4 rounded-3xl flex flex-col items-center text-center shadow-[0_8px_20px_rgba(244,63,94,0.2)] dark:shadow-[0_8px_20px_rgba(244,63,94,0.15)] group">
+                        <span class="text-[10px] text-white/80 font-bold uppercase z-10">Bay ที่ใช้</span>
+                        <span class="text-2xl font-black text-white z-10" id="statUsedBays">0</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 mt-4">
+                    <button onclick="navigateTo('add')" class="dash-btn hover-card group bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 flex flex-col items-start gap-3 animate-fade-in-up">
+                        <div class="w-16 h-16 bg-indigo-50 dark:bg-indigo-900/40 rounded-2xl flex items-center justify-center shrink-0 border border-indigo-200 z-10">
+                            <img src="https://cjagcytcjfpgoaoxsgav.supabase.co/storage/v1/object/public/app-Icon/inbound.png" class="w-12 h-12 object-contain drop-shadow-md transform scale-125 group-hover:scale-250 transition-all duration-300" alt="Inbound">
+                        </div>
+                        <div class="text-left z-10"><h3 class="font-bold text-base">รับเข้า</h3><p class="text-[10px] sm:text-xs text-slate-400 mt-0.5">สแกนเพิ่มสินค้า</p></div>
+                    </button>
+
+                    <button onclick="navigateTo('search')" class="dash-btn hover-card group bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 flex flex-col items-start gap-3 animate-fade-in-up">
+                        <div class="w-16 h-16 bg-teal-50 dark:bg-teal-900/40 rounded-2xl flex items-center justify-center shrink-0 border border-teal-200 z-10">
+                            <img src="https://cjagcytcjfpgoaoxsgav.supabase.co/storage/v1/object/public/app-Icon/Search.png" class="w-12 h-12 object-contain drop-shadow-md transform scale-125 group-hover:scale-250 transition-all duration-300" alt="Search">
+                        </div>
+                        <div class="text-left z-10"><h3 class="font-bold text-base">ค้นหา/จัดการ</h3><p class="text-[10px] sm:text-xs text-slate-400 mt-0.5">แก้ไขจำนวน</p></div>
+                    </button>
+
+                    <button onclick="navigateTo('transfer')" class="dash-btn hover-card group bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 flex flex-col items-start gap-3 animate-fade-in-up">
+                        <div class="w-16 h-16 bg-blue-50 dark:bg-blue-900/40 rounded-2xl flex items-center justify-center shrink-0 border border-blue-200 z-10">
+                            <img src="https://cjagcytcjfpgoaoxsgav.supabase.co/storage/v1/object/public/app-Icon/MoveItem.png" class="w-12 h-12 object-contain drop-shadow-md transform scale-125 group-hover:scale-250 transition-all duration-300" alt="MoveItem">
+                        </div>
+                        <div class="text-left z-10"><h3 class="font-bold text-base">ย้ายตำแหน่ง</h3><p class="text-[10px] sm:text-xs text-slate-400 mt-0.5">ย้ายสินค้าข้าม Bay</p></div>
+                    </button>
+
+                    <button onclick="loadEmptyBays()" class="dash-btn hover-card group bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 flex flex-col items-start gap-3 animate-fade-in-up">
+                        <div class="w-16 h-16 bg-amber-50 dark:bg-amber-900/40 rounded-2xl flex items-center justify-center shrink-0 border border-amber-200 z-10">
+                            <img src="https://cjagcytcjfpgoaoxsgav.supabase.co/storage/v1/object/public/app-Icon/CheckBay.png" class="w-12 h-12 object-contain drop-shadow-md transform scale-125 group-hover:scale-250 transition-all duration-300" alt="Check Bay">
+                        </div>
+                        <div class="text-left z-10"><h3 class="font-bold text-base">เช็ค Bay ว่าง</h3><p class="text-[10px] sm:text-xs text-slate-400 mt-0.5">ตรวจสอบพื้นที่ว่าง</p></div>
+                    </button>
+
+                    <button onclick="navigateTo('master')" class="dash-btn hover-card group bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 flex flex-col items-start gap-3 animate-fade-in-up">
+                        <div class="w-16 h-16 bg-slate-100 dark:bg-slate-700 rounded-2xl flex items-center justify-center shrink-0 border border-slate-300 z-10">
+                            <img src="https://cjagcytcjfpgoaoxsgav.supabase.co/storage/v1/object/public/app-Icon/MasterData.png" class="w-12 h-12 object-contain drop-shadow-md transform scale-125 group-hover:scale-250 transition-all duration-300" alt="MasterData">
+                        </div>
+                        <div class="text-left z-10"><h3 class="font-bold text-base">เพิ่มฐานข้อมูล</h3><p class="text-[10px] sm:text-xs text-slate-400 mt-0.5">เพิ่ม Master ใหม่</p></div>
+                    </button>
+
+                    <button onclick="openPrintSelector()" class="dash-btn hover-card group bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 flex flex-col items-start gap-3 animate-fade-in-up">
+                        <div class="w-16 h-16 bg-purple-50 dark:bg-purple-900/40 rounded-2xl flex items-center justify-center shrink-0 border border-purple-200 z-10">
+                            <img src="https://cjagcytcjfpgoaoxsgav.supabase.co/storage/v1/object/public/app-Icon/PrintTag.png" class="w-12 h-12 object-contain drop-shadow-md transform scale-125 group-hover:scale-250 transition-all duration-300" alt="PrintTag">
+                        </div>
+                        <div class="text-left z-10"><h3 class="font-bold text-base">พิมพ์ Tag</h3><p class="text-[10px] sm:text-xs text-slate-400 mt-0.5">รายงานและพริ้นท์</p></div>
+                    </button>
+                </div>
+
+                <div class="mt-4 bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-slate-200 dark:border-slate-700 flex justify-between items-center animate-fade-in-up">
+                    <div>
+                        <h3 class="font-bold text-sm"><i class="fas fa-boxes text-teal-500 mr-1.5 text-lg"></i> ข้อมูลสต๊อก</h3>
+                        <p class="text-[10px] text-slate-500 mt-1" id="inventoryDataTimestamp">อัปเดตล่าสุด: ...</p>
+                    </div>
+                    <button onclick="openInventorySyncModal(false)" class="text-[10px] bg-teal-50 dark:bg-teal-900/30 text-teal-600 px-3 py-2 rounded-xl font-bold hover:scale-105 transition-transform">โหลดใหม่</button>
+                </div>
+
+                <div class="mt-3 bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-slate-200 dark:border-slate-700 flex justify-between items-center animate-fade-in-up">
+                    <div>
+                        <h3 class="font-bold text-sm"><i class="fas fa-database text-primary mr-1"></i> Master Data</h3>
+                        <p class="text-[10px] text-slate-500" id="masterDataTimestamp">อัปเดตล่าสุด: ...</p>
+                    </div>
+                    <button onclick="openMasterSyncModal(false)" class="text-[10px] bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 px-3 py-2 rounded-xl font-bold hover:scale-105 transition-transform">โหลดใหม่</button>
+                </div>
+
+                <!-- Admin Shortcut in Home -->
+                <div id="adminShortcutContainer" class="hidden mt-6 pt-6 border-t border-slate-200 dark:border-slate-700 animate-fade-in-up">
+                    <div class="text-xs font-bold text-slate-400 uppercase mb-3">Admin Panel</div>
+                    <button onclick="navigateTo('admin')" class="w-full bg-slate-800 dark:bg-slate-700 text-white p-4 rounded-2xl shadow-md font-bold flex items-center justify-between hover:bg-slate-600 transition-colors group">
+                        <div class="flex items-center gap-4">
+                            <img src="https://cjagcytcjfpgoaoxsgav.supabase.co/storage/v1/object/public/app-Icon/AdminCon.png" class="w-10 h-10 object-contain drop-shadow-md transform scale-110 group-hover:scale-125 transition-transform duration-300" alt="Admin"> 
+                            <span class="text-base">จัดการระบบ (Admin)</span>
+                        </div>
+                        <i class="fas fa-chevron-right text-sm opacity-50 group-hover:translate-x-1 transition-transform"></i>
+                    </button>
+                </div>
+
+                <!-- Credit Footer -->
+                <div class="mt-8 mb-2 flex justify-center animate-fade-in-up" style="animation-delay: 400ms;">
+                    <div class="inline-flex items-center justify-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800 px-4 py-2 rounded-full border border-slate-200 dark:border-slate-700 shadow-sm">
+                        <span>Created by</span>
+                        <i class="fas fa-code text-primary dark:text-indigo-400"></i>
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary via-purple-500 to-pink-500 font-black drop-shadow-sm">Pornpichit SSS.20</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION: ADMIN SETTINGS -->
+            <section id="view-admin" class="view-section pt-2 space-y-4 pb-8">
+                <div class="text-center mb-8 animate-fade-in-up">
+                    <div class="inline-flex bg-slate-800 w-28 h-28 rounded-full items-center justify-center mb-4 shadow-lg p-5 border-4 border-slate-700">
+                        <img src="https://cjagcytcjfpgoaoxsgav.supabase.co/storage/v1/object/public/app-Icon/AdminCon.png" class="w-full h-full object-contain drop-shadow-md transform scale-125" alt="Admin">
+                    </div>
+                    <h2 class="text-3xl font-bold text-slate-800 dark:text-white tracking-tight mb-1">Admin Control</h2>
+                    <p class="text-sm text-slate-500">จัดการระบบหลังบ้าน</p>
+                </div>
+                
+                <div class="space-y-4 animate-fade-in-up" style="animation-delay: 50ms;">
+                    
+                    <button onclick="loadHistoryView()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-5 rounded-2xl shadow-md font-bold flex items-center justify-between hover:shadow-lg transition-all group relative overflow-visible mb-8">
+                        <div class="flex items-center gap-5">
+                            <div class="w-20 h-20 bg-white/20 rounded-2xl flex items-center justify-center shrink-0 backdrop-blur-sm">
+                                <i class="fas fa-history text-5xl drop-shadow-md transform scale-110 group-hover:-rotate-12 transition-transform duration-300"></i>
+                            </div> 
+                            <div class="text-left">
+                                <div class="text-lg">ประวัติการทำรายการ</div>
+                                <div class="text-xs font-normal text-blue-100 mt-1">ตรวจสอบ (Audit Log) ย้อนหลัง</div>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right text-lg opacity-50 group-hover:translate-x-1 transition-transform"></i>
+                    </button>
+
+                    <div class="bg-emerald-50 dark:bg-emerald-900/10 rounded-2xl p-6 shadow-sm border border-emerald-200 dark:border-emerald-900/50 mb-8">
+                        <h3 class="font-bold text-emerald-600 dark:text-emerald-400 text-lg flex items-center gap-2 mb-2">
+                            <i class="fas fa-cloud-upload-alt text-2xl"></i> อัปโหลดสินค้า (CSV / Excel)
+                        </h3>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mb-5">อัปเดตข้อมูลสินค้าผ่านไฟล์ .csv หรือ .xlsx</p>
+                        <div class="flex gap-4">
+                            <button onclick="downloadTemplate()" class="flex-1 bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 py-4 rounded-xl font-bold transition-all text-sm hover:bg-emerald-50 dark:hover:bg-emerald-900/30 group">
+                                <img src="https://cjagcytcjfpgoaoxsgav.supabase.co/storage/v1/object/public/app-Icon/LoadTemplate.png" class="w-16 h-16 mb-2 mx-auto object-contain drop-shadow-md transform scale-125 group-hover:scale-150 transition-transform duration-300" alt="Template"> โหลด Template
+                            </button>
+                            <button onclick="triggerFileUpload()" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white py-4 rounded-xl font-bold shadow-md transition-all text-sm group">
+                                <img src="https://cjagcytcjfpgoaoxsgav.supabase.co/storage/v1/object/public/app-Icon/importCsv.png" class="w-16 h-16 mb-2 mx-auto object-contain drop-shadow-md transform scale-125 group-hover:scale-150 transition-transform duration-300" alt="Upload"> เลือกไฟล์ Upload
+                            </button>
+                            <input type="file" id="fileInput" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" class="hidden" onchange="handleFileUpload(event)">
+                        </div>
+                    </div>
+
+                    <button onclick="openGoogleSheetDB()" class="w-full bg-white dark:bg-slate-800 p-5 rounded-2xl border dark:border-slate-700 shadow-sm font-bold text-primary dark:text-indigo-400 flex items-center justify-between hover:bg-slate-50 transition-colors group relative overflow-visible">
+                        <div class="flex items-center gap-5">
+                            <div class="w-20 h-20 bg-indigo-50 dark:bg-indigo-900/30 rounded-2xl flex items-center justify-center shrink-0">
+                                <img src="https://cjagcytcjfpgoaoxsgav.supabase.co/storage/v1/object/public/app-Icon/Database.png" class="w-full h-full p-2.5 object-contain drop-shadow-md transform scale-125 group-hover:scale-150 transition-transform duration-300" alt="DB">
+                            </div> 
+                            <span class="text-lg">เปิดฐานข้อมูล Supabase</span>
+                        </div>
+                        <i class="fas fa-external-link-alt text-lg opacity-50 group-hover:translate-x-1 transition-transform"></i>
+                    </button>
+                    
+                    <button onclick="exportToCSV()" class="w-full bg-white dark:bg-slate-800 p-5 rounded-2xl border dark:border-slate-700 shadow-sm font-bold text-teal-600 dark:text-teal-400 flex items-center justify-between hover:bg-slate-50 transition-colors group relative overflow-visible">
+                        <div class="flex items-center gap-5">
+                            <div class="w-20 h-20 bg-teal-50 dark:bg-teal-900/30 rounded-2xl flex items-center justify-center shrink-0">
+                                <img src="https://cjagcytcjfpgoaoxsgav.supabase.co/storage/v1/object/public/app-Icon/DownloadCsv.png" class="w-full h-full p-2.5 object-contain drop-shadow-md transform scale-125 group-hover:scale-150 transition-transform duration-300" alt="Export">
+                            </div> 
+                            <span class="text-lg">ดาวน์โหลด CSV</span>
+                        </div>
+                        <i class="fas fa-file-excel text-lg opacity-50 group-hover:translate-x-1 transition-transform"></i>
+                    </button>
+                    
+                    <button onclick="checkOnlineUsers()" class="w-full bg-white dark:bg-slate-800 p-5 rounded-2xl border dark:border-slate-700 shadow-sm font-bold text-indigo-600 dark:text-indigo-400 flex items-center justify-between hover:bg-slate-50 transition-colors group relative overflow-visible">
+                        <div class="flex items-center gap-5">
+                            <div class="w-20 h-20 bg-indigo-50 dark:bg-indigo-900/30 rounded-2xl flex items-center justify-center shrink-0">
+                                <img src="https://cjagcytcjfpgoaoxsgav.supabase.co/storage/v1/object/public/app-Icon/CheckUser.png" class="w-full h-full p-2.5 object-contain drop-shadow-md transform scale-125 group-hover:scale-150 transition-transform duration-300" alt="Users">
+                            </div> 
+                            <span class="text-lg">ดู User ออนไลน์</span>
+                        </div>
+                        <i class="fas fa-signal text-lg opacity-50 group-hover:translate-x-1 transition-transform"></i>
+                    </button>
+
+                    <button onclick="openAdminUserManage()" class="w-full bg-white dark:bg-slate-800 p-5 rounded-2xl border dark:border-slate-700 shadow-sm font-bold text-amber-600 dark:text-amber-400 flex items-center justify-between hover:bg-slate-50 transition-colors group relative overflow-visible">
+                        <div class="flex items-center gap-5">
+                            <div class="w-20 h-20 bg-amber-50 dark:bg-amber-900/30 rounded-2xl flex items-center justify-center shrink-0 relative">
+                                <img src="https://cjagcytcjfpgoaoxsgav.supabase.co/storage/v1/object/public/app-Icon/UserManage.png" class="w-full h-full p-2.5 object-contain drop-shadow-md transform scale-110 group-hover:scale-125 transition-transform duration-300" alt="Manage User">
+                                <span id="adminResetBadge" class="absolute -top-1 -right-1 flex h-5 w-5 hidden">
+                                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                  <span class="relative inline-flex rounded-full h-5 w-5 bg-red-500"></span>
+                                </span>
+                            </div> 
+                            <span class="text-lg">จัดการผู้ใช้งาน / รหัสผ่าน</span>
+                        </div>
+                        <i class="fas fa-chevron-right text-lg opacity-50 group-hover:translate-x-1 transition-transform"></i>
+                    </button>
+                    
+                    <button onclick="handleClearData()" class="w-full bg-red-50 dark:bg-red-900/10 p-5 rounded-2xl border border-red-200 dark:border-red-900/50 font-bold text-red-600 dark:text-red-400 flex items-center justify-between mt-10 hover:bg-red-100 transition-colors group relative overflow-visible">
+                        <div class="flex items-center gap-5">
+                            <div class="w-20 h-20 bg-red-100 dark:bg-red-900/30 rounded-2xl flex items-center justify-center shrink-0">
+                                <img src="https://cjagcytcjfpgoaoxsgav.supabase.co/storage/v1/object/public/app-Icon/clearData.png" class="w-full h-full p-2.5 object-contain drop-shadow-md transform scale-125 group-hover:scale-150 transition-transform duration-300" alt="Clear">
+                            </div> 
+                            <span class="text-lg">ล้างข้อมูลทั้งหมด</span>
+                        </div>
+                        <i class="fas fa-exclamation-triangle text-lg opacity-50 group-hover:translate-x-1 transition-transform"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- SECTION: EMPTY BAYS -->
+            <section id="view-empty-bays" class="view-section pt-2 space-y-4">
+                <div class="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm flex justify-between items-center sticky top-1 z-40 border dark:border-slate-700">
+                    <div>
+                        <h3 class="font-bold text-sm flex items-center gap-2">
+                            <img src="https://cjagcytcjfpgoaoxsgav.supabase.co/storage/v1/object/public/app-Icon/CheckBay.png" class="w-6 h-6 object-contain transform scale-110 drop-shadow-sm" alt="Bay"> 
+                            รายการ Bay ทั้งหมด
+                        </h3>
+                    </div>
+                    <button onclick="loadEmptyBays()" class="w-8 h-8 bg-slate-100 dark:bg-slate-700 rounded-full hover:scale-110 transition-transform">
+                        <i class="fas fa-sync-alt text-xs"></i>
+                    </button>
+                </div>
+                
+                <div class="bg-white dark:bg-slate-800 rounded-xl p-4 border dark:border-slate-700">
+                    <input type="text" id="emptyBaySearch" oninput="renderEmptyBays(this.value)" placeholder="ค้นหา Aisle-Bay..." class="w-full bg-slate-50 dark:bg-slate-900 border dark:border-slate-700 p-2.5 rounded-xl text-sm mb-4">
+                    <div id="emptyBaysSummaryContainer" class="mb-4">
+                        <div id="emptyBaysSummaryList" class="grid grid-cols-4 gap-2"></div>
+                    </div>
+                    <div class="text-xs font-bold text-slate-500 mb-2 flex justify-between">
+                        <span id="emptyBaysCount">ว่าง 0</span>
+                    </div>
+                    <div id="emptyBaysList" class="space-y-4 max-h-[60vh] overflow-y-auto custom-scrollbar"></div>
+                </div>
+            </section>
+
+            <!-- SECTION: ADD / INBOUND -->
+            <section id="view-add" class="view-section space-y-4 pt-2">
+                <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border dark:border-slate-700">
+                    <label class="text-xs font-semibold text-slate-500 block mb-1">Aisle-Bay Location</label>
+                    <input type="text" id="addAisleBay" placeholder="A01-001" maxlength="7" class="w-full bg-slate-50 dark:bg-slate-900 border dark:border-slate-700 rounded-xl p-3 text-center text-xl font-bold uppercase mb-4">
+                    <div class="flex gap-2">
+                        <input type="text" id="addBarcode" placeholder="สแกนรหัส" class="flex-grow border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 rounded-xl px-4 py-3 text-sm">
+                        <button onclick="startScanner('readerAdd')" class="bg-primary text-white w-12 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-barcode"></i>
+                        </button>
+                    </div>
+                    <div id="scannerAddContainer" class="hidden my-4 relative">
+                        <button onclick="stopScanner()" class="absolute top-0 right-0 z-10 bg-red-500 text-white w-8 h-8 rounded"><i class="fas fa-times"></i></button>
+                        <div id="readerAdd"></div>
+                    </div>
+                    <div id="productEntryArea" class="hidden bg-teal-50 dark:bg-teal-900/30 p-4 rounded-xl border dark:border-teal-700/50 mt-4">
+                        <span id="foundItemNo" class="text-[10px] font-bold bg-secondary text-white px-2 rounded">ITEM: -</span>
+                        <h4 id="foundDesc" class="font-semibold mt-1 text-slate-800 dark:text-white">...</h4>
+                        <div class="flex gap-3 items-end mt-2">
+                            <input type="number" id="addQty" value="1" min="1" class="w-full bg-white dark:bg-slate-800 border dark:border-teal-600 rounded-xl p-2 text-center font-bold">
+                            <button onclick="addPendingItem()" class="bg-secondary text-white px-6 py-2 rounded-xl font-bold">เพิ่ม</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm h-[320px] flex flex-col border dark:border-slate-700">
+                    <div class="flex justify-between text-xs font-bold mb-2">
+                        <span>รายการรอบันทึก</span>
+                        <span id="pendingCount">0</span>
+                    </div>
+                    <div id="pendingList" class="flex-grow overflow-y-auto custom-scrollbar space-y-2"></div>
+                    <button onclick="submitToSheets()" id="btnSaveAll" disabled class="w-full mt-3 bg-primary text-white py-3 rounded-xl font-bold disabled:bg-slate-300 dark:disabled:bg-slate-700">บันทึกข้อมูล</button>
+                </div>
+            </section>
+
+            <!-- SECTION: SEARCH / EDIT -->
+            <section id="view-search" class="view-section pt-2">
+                <div class="bg-white dark:bg-slate-800 p-3 rounded-2xl shadow-sm sticky top-1 z-40 mb-4 flex gap-2 border dark:border-slate-700">
+                    <input type="text" id="searchInput" oninput="renderSearchList(this.value)" class="w-full bg-slate-50 dark:bg-slate-900 border dark:border-slate-700 rounded-xl px-4 py-2 text-sm" placeholder="พิมพ์ Aisle, ชื่อ หรือ รหัส...">
+                    <button onclick="syncDataFromSheets(true)" class="w-11 h-11 bg-indigo-50 dark:bg-indigo-900/30 text-primary rounded-xl flex items-center justify-center">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+                <div id="stockListContainer" class="space-y-4 pb-8"></div>
+                <div id="loadMoreTrigger" class="h-12 text-center text-slate-400 text-xs hidden">กำลังโหลด...</div>
+            </section>
+
+            <!-- SECTION: TRANSFER -->
+            <section id="view-transfer" class="view-section pt-2 space-y-4">
+                <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border dark:border-slate-700">
+                    <label class="text-xs font-semibold text-slate-500 block mb-1">สแกนรหัสสินค้าที่ต้องการย้าย</label>
+                    <div class="flex gap-2 mb-4">
+                        <input type="text" id="transferBarcode" placeholder="รหัสสินค้า" class="flex-grow bg-slate-50 dark:bg-slate-900 border dark:border-slate-700 rounded-xl p-3">
+                        <button onclick="startScanner('readerTransfer')" class="bg-blue-500 text-white w-12 rounded-xl"><i class="fas fa-barcode"></i></button>
+                    </div>
+                    <div id="scannerTransferContainer" class="hidden my-2 relative">
+                        <button onclick="stopScanner()" class="absolute top-0 right-0 z-10 bg-red-500 text-white w-8 h-8"><i class="fas fa-times"></i></button>
+                        <div id="readerTransfer"></div>
+                    </div>
+                    
+                    <div id="transferItemArea" class="hidden space-y-4">
+                        <div class="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-xl">
+                            <span id="tfItemNo" class="text-xs font-bold text-blue-700 dark:text-blue-400"></span>
+                            <h4 id="tfDesc" class="text-sm font-bold dark:text-white"></h4>
+                        </div>
+                        <select id="tfSourceBay" class="w-full border dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl p-3 text-sm" onchange="updateTransferMaxQty()">
+                            <option value="">-- เลือก Bay ต้นทาง --</option>
+                        </select>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" id="tfTargetBay" placeholder="ปลายทาง A01-001" maxlength="7" class="border dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl p-3 text-center uppercase">
+                            <div class="relative">
+                                <input type="number" id="tfQty" value="1" min="1" class="w-full border dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl p-3 text-center pr-8">
+                                <span id="tfMaxQtyLabel" class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400">/ 0</span>
+                            </div>
+                        </div>
+                        <button onclick="submitTransfer()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold">ยืนยันการย้าย</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION: MASTER DATA -->
+            <section id="view-master" class="view-section pt-2 space-y-4">
+                <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border dark:border-slate-700">
+                    <input type="text" id="masterItemNo" class="w-full bg-slate-50 dark:bg-slate-900 border dark:border-slate-700 rounded-xl p-3 mb-3 text-sm" placeholder="Item No *">
+                    <div class="flex gap-2 mb-3">
+                        <input type="text" id="masterBarcode" class="flex-grow bg-slate-50 dark:bg-slate-900 border dark:border-slate-700 rounded-xl p-3 text-sm" placeholder="Barcode">
+                        <button onclick="startScanner('readerMaster')" class="bg-slate-200 dark:bg-slate-700 px-4 rounded-xl"><i class="fas fa-barcode"></i></button>
+                    </div>
+                    <div id="scannerMasterContainer" class="hidden my-2 relative">
+                        <button onclick="stopScanner()" class="absolute top-0 right-0 bg-red-500 text-white w-8 h-8"><i class="fas fa-times"></i></button>
+                        <div id="readerMaster"></div>
+                    </div>
+                    <input type="text" id="masterDesc" class="w-full bg-slate-50 dark:bg-slate-900 border dark:border-slate-700 rounded-xl p-3 mb-3 text-sm" placeholder="Description *">
+                    <button onclick="saveMasterData()" id="btnSaveMaster" class="w-full bg-slate-800 dark:bg-slate-700 text-white py-3 rounded-xl font-bold">บันทึกข้อมูล Master</button>
+                </div>
+            </section>
+
+            <!-- SECTION: TRANSACTION HISTORY -->
+            <section id="view-history" class="view-section pt-2 space-y-4 pb-8">
+                <div class="bg-white dark:bg-slate-800 p-3 rounded-2xl shadow-sm sticky top-1 z-40 mb-4 flex gap-2 border dark:border-slate-700">
+                    <input type="text" id="historySearchInput" oninput="renderHistoryList(this.value)" class="w-full bg-slate-50 dark:bg-slate-900 border dark:border-slate-700 rounded-xl px-4 py-2 text-sm" placeholder="ค้นหา รหัส, Bay, พนักงาน...">
+                    <button onclick="exportHistoryCSV()" class="w-11 h-11 bg-blue-50 dark:bg-blue-900/30 text-blue-600 rounded-xl flex items-center justify-center shrink-0">
+                        <i class="fas fa-file-csv"></i>
+                    </button>
+                </div>
+                <div class="text-xs text-slate-500 text-center mb-2">แสดงรายการเคลื่อนไหว 100 รายการล่าสุด</div>
+                <div id="historyListContainer" class="space-y-3"></div>
+            </section>
+
+        </main>
+
+        <!-- Floating Back Button (ปุ่มย้อนกลับที่อยู่ด้านล่างซ้าย) -->
+        <div class="fixed bottom-20 left-0 w-full pointer-events-none z-[90]">
+            <div class="max-w-md mx-auto px-4">
+                <button id="btnBack" onclick="navigateTo('home')" class="w-12 h-12 bg-white dark:bg-slate-800 text-slate-700 dark:text-white rounded-full shadow-[0_4px_15px_rgba(0,0,0,0.15)] border border-slate-200 dark:border-slate-700 hidden items-center justify-center pointer-events-auto hover:scale-110 active:scale-95 transition-all">
+                    <i class="fas fa-arrow-left text-lg"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- 5. BOTTOM NAVIGATION                       -->
+        <!-- ========================================== -->
+        <nav id="bottomNav" class="fixed bottom-0 left-0 w-full bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border-t border-slate-200/80 dark:border-slate-700/80 pb-safe z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.03)]">
+            <div class="max-w-md mx-auto flex justify-between items-center px-4 py-2 sm:px-6">
+                <button onclick="navigateTo('home')" class="nav-item active flex flex-col items-center gap-1 text-slate-400 w-16" data-view="home">
+                    <i class="fas fa-home text-2xl mb-1"></i><span class="text-[11px]">Home</span>
+                </button>
+                <button onclick="navigateTo('add')" class="nav-item flex flex-col items-center gap-1 text-slate-400 w-16" data-view="add">
+                    <i class="fas fa-plus text-2xl mb-1"></i><span class="text-[11px]">รับเข้า</span>
+                </button>
+                <button onclick="navigateTo('search')" class="nav-item flex flex-col items-center gap-1 text-slate-400 w-16" data-view="search">
+                    <i class="fas fa-search text-2xl mb-1"></i><span class="text-[11px]">ค้นหา</span>
+                </button>
+                <button onclick="loadEmptyBays()" class="nav-item flex flex-col items-center gap-1 text-slate-400 w-16" data-view="empty-bays">
+                    <i class="fas fa-layer-group text-2xl mb-1"></i>
+                    <span class="text-[11px]">เช็ค Bay</span>
+                </button>
+            </div>
+        </nav>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- 6. MODALS & DIALOGS                        -->
+    <!-- ========================================== -->
+    
+    <!-- Inventory Sync Modal -->
+    <div id="inventorySyncModal" class="fixed inset-0 bg-slate-900/80 z-[99999] flex items-center justify-center p-4 opacity-0 pointer-events-none invisible transition-all">
+        <div id="isBox" class="bg-white rounded-2xl w-full max-w-sm p-6 text-center transform scale-95 transition-transform">
+            <h3 class="text-lg font-bold mb-2">อัปเดตข้อมูลสต๊อก</h3>
+            <p id="isStatusText" class="text-xs text-slate-500 mb-4">โหลดข้อมูลสต๊อกล่าสุดลงเครื่อง...</p>
+            <div class="w-full bg-slate-100 rounded-full h-3 mb-2">
+                <div id="isProgressBar" class="bg-teal-400 h-3 rounded-full" style="width: 0%"></div>
+            </div>
+            <p id="isProgressText" class="text-xs font-bold text-teal-600 mb-4">0%</p>
+            <div class="flex gap-2">
+                <button id="btnCancelInventorySync" onclick="closeInventorySyncModal()" class="flex-1 bg-slate-100 py-3 rounded-xl text-sm font-bold hidden">ข้าม</button>
+                <button id="btnStartInventorySync" onclick="downloadInventoryData()" class="flex-1 bg-teal-500 text-white py-3 rounded-xl text-sm font-bold">เริ่มดาวน์โหลด</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Master Sync Modal -->
+    <div id="masterSyncModal" class="fixed inset-0 bg-slate-900/80 z-[99999] flex items-center justify-center p-4 opacity-0 pointer-events-none invisible transition-all">
+        <div id="msBox" class="bg-white rounded-2xl w-full max-w-sm p-6 text-center transform scale-95 transition-transform">
+            <h3 class="text-lg font-bold mb-2">อัปเดตฐานข้อมูล (MasterData)</h3>
+            <p id="msStatusText" class="text-xs text-slate-500 mb-4">ระบบจำเป็นต้องดาวน์โหลดรายการสินค้าทั้งหมด</p>
+            <div class="w-full bg-slate-100 rounded-full h-3 mb-2">
+                <div id="msProgressBar" class="bg-primary h-3 rounded-full" style="width: 0%"></div>
+            </div>
+            <p id="msProgressText" class="text-xs font-bold text-primary mb-4">0%</p>
+            <div class="flex gap-2">
+                <button id="btnCancelMasterSync" onclick="closeMasterSyncModal()" class="flex-1 bg-slate-100 py-3 rounded-xl text-sm font-bold hidden">ข้าม</button>
+                <button id="btnStartMasterSync" onclick="downloadMasterData()" class="flex-1 bg-primary text-white py-3 rounded-xl text-sm font-bold">เริ่มดาวน์โหลด</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dialog Modal -->
+    <div id="awesomeDialog" class="fixed inset-0 bg-slate-900/60 z-[100000] flex items-center justify-center p-4 opacity-0 pointer-events-none invisible transition-all">
+        <div id="adBox" class="bg-white rounded-2xl w-full max-w-sm p-6 text-center transform scale-95 transition-transform">
+            <div id="adIconBox" class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-indigo-50 text-indigo-500 text-2xl">
+                <i id="adIcon" class="fas fa-info"></i>
+            </div>
+            <h3 id="adTitle" class="text-lg font-bold mb-2">Title</h3>
+            <p id="adText" class="text-sm text-slate-500 mb-4">Message</p>
+            <input type="text" id="adInput" class="hidden w-full border p-3 rounded-xl mb-4 text-center">
+            <div class="flex gap-2">
+                <button id="adBtnCancel" class="flex-1 bg-slate-100 py-3 rounded-xl font-bold">ยกเลิก</button>
+                <button id="adBtnConfirm" class="flex-1 bg-primary text-white py-3 rounded-xl font-bold">ตกลง</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Add Modal -->
+    <div id="quickAddModal" class="fixed inset-0 bg-slate-900/60 z-[150] flex items-center justify-center p-4 opacity-0 pointer-events-none invisible transition-all">
+        <div id="qaBox" class="bg-white rounded-2xl w-full max-w-sm flex flex-col max-h-[90vh] transform scale-95 transition-transform">
+            <div class="bg-primary px-5 py-4 text-white flex justify-between items-center">
+                <h3 class="font-bold text-sm">รับเข้า Bay: <span id="qaTargetAisle"></span></h3>
+                <button onclick="closeQuickAddModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="p-4 space-y-4">
+                <div class="flex gap-2">
+                    <input type="text" id="qaInput" placeholder="สแกนรหัส" class="flex-grow border p-3 rounded-xl">
+                    <button onclick="startScanner('qaReader')" class="bg-slate-200 px-4 rounded-xl"><i class="fas fa-barcode"></i></button>
+                </div>
+                <div id="qaScannerContainer" class="hidden relative">
+                    <button onclick="stopScanner()" class="absolute top-0 right-0 z-10 bg-red-500 text-white w-8 h-8"><i class="fas fa-times"></i></button>
+                    <div id="qaReader"></div>
+                </div>
+                <div id="qaProductInfo" class="hidden bg-indigo-50 p-4 rounded-xl">
+                    <span id="qaItemNo" class="text-xs font-bold text-primary"></span>
+                    <h4 id="qaDesc" class="text-sm font-bold mt-1"></h4>
+                    <div class="flex gap-2 mt-2">
+                        <input type="number" id="qaQty" value="1" class="w-full border rounded-xl p-2 text-center">
+                        <button onclick="addQaItemToPending()" class="bg-primary text-white px-5 py-2 rounded-xl">เพิ่ม</button>
+                    </div>
+                </div>
+            </div>
+            <div class="flex-grow overflow-y-auto px-4 pb-4 border-t bg-slate-50">
+                <div class="text-xs font-bold text-slate-500 my-2 flex justify-between">
+                    <span>คิวรออัปเดต</span>
+                    <span id="qaPendingCount">0</span>
+                </div>
+                <div id="qaPendingList" class="space-y-2"></div>
+            </div>
+            <div class="p-4 border-t bg-white">
+                <button onclick="submitQaPendingItems()" id="btnSubmitQa" disabled class="w-full bg-primary disabled:bg-slate-300 text-white py-3 rounded-xl font-bold">บันทึกทั้งหมด</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Print Modal -->
+    <div id="printSelectorModal" class="fixed inset-0 bg-slate-900/60 z-[110] flex items-center justify-center p-4 opacity-0 pointer-events-none invisible transition-all">
+        <div id="printBox" class="bg-white rounded-2xl w-full max-w-sm flex flex-col max-h-[80vh] transform scale-95 transition-transform">
+            <div class="bg-slate-100 px-5 py-4 flex justify-between items-center">
+                <h3 class="font-bold text-sm">พิมพ์รายงาน</h3>
+                <button onclick="closePrintSelectorModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="p-3 border-b">
+                <input type="text" id="printSearchInput" oninput="filterPrint(this.value)" class="w-full border rounded-xl px-4 py-2 text-sm" placeholder="ค้นหา Aisle-Bay...">
+            </div>
+            <div id="printAisleList" class="p-3 overflow-y-auto space-y-3 flex-grow bg-slate-50"></div>
+        </div>
+    </div>
+
+    <!-- Online Users Modal -->
+    <div id="onlineUsersModal" class="fixed inset-0 bg-slate-900/80 z-[99999] flex items-center justify-center p-4 opacity-0 pointer-events-none invisible transition-all">
+        <div id="ouBox" class="bg-white rounded-2xl w-full max-w-sm flex flex-col max-h-[80vh] transform scale-95 transition-transform">
+            <div class="bg-indigo-50 px-5 py-4 flex justify-between items-center">
+                <h3 class="font-bold text-sm text-indigo-600">ผู้ใช้ออนไลน์</h3>
+                <button onclick="closeOnlineUsersModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="ouLoader" class="p-8 text-center text-slate-400">
+                <i class="fas fa-circle-notch fa-spin text-2xl mb-2"></i>
+            </div>
+            <div id="onlineUsersList" class="p-3 overflow-y-auto space-y-2 flex-grow bg-slate-50 hidden"></div>
+        </div>
+    </div>
+
+    <!-- Admin User Manage Modal -->
+    <div id="adminUserManageModal" class="fixed inset-0 bg-slate-900/80 z-[99999] flex items-center justify-center p-4 opacity-0 pointer-events-none invisible transition-all">
+        <div id="aumBox" class="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-sm flex flex-col max-h-[85vh] transform scale-95 transition-transform border dark:border-slate-700">
+            <div class="bg-amber-50 dark:bg-amber-900/30 px-5 py-4 flex justify-between items-center rounded-t-2xl border-b dark:border-slate-700">
+                <h3 class="font-bold text-sm text-amber-600 dark:text-amber-400">จัดการข้อมูลผู้ใช้งาน</h3>
+                <button onclick="closeAdminUserManage()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="aumLoader" class="p-8 text-center text-slate-400 hidden">
+                <i class="fas fa-circle-notch fa-spin text-2xl mb-2"></i><p class="text-xs">กำลังโหลดข้อมูลผู้ใช้...</p>
+            </div>
+            <div class="p-3 bg-slate-50 dark:bg-slate-900/50">
+                <input type="text" id="aumSearch" oninput="renderAdminUserList(this.value)" class="w-full bg-white dark:bg-slate-800 border dark:border-slate-700 p-2.5 rounded-xl text-sm" placeholder="ค้นหาชื่อหรือ Username...">
+            </div>
+            <div id="aumList" class="p-3 overflow-y-auto space-y-2 flex-grow bg-slate-50 dark:bg-slate-900/50"></div>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div id="changePasswordModal" class="fixed inset-0 bg-slate-900/80 z-[100000] flex items-center justify-center p-4 opacity-0 pointer-events-none invisible transition-all">
+        <div id="cpBox" class="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-sm p-6 transform scale-95 transition-transform border dark:border-slate-700">
+            <h3 class="text-lg font-bold mb-4 text-slate-800 dark:text-white">เปลี่ยนรหัสผ่าน</h3>
+            <div class="space-y-3 text-left">
+                <div>
+                    <label class="text-xs font-semibold text-slate-500 block mb-1">รหัสผ่านเดิม</label>
+                    <input type="password" id="cpOld" class="w-full bg-slate-50 dark:bg-slate-900 border dark:border-slate-700 p-3 rounded-xl text-sm">
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-slate-500 block mb-1">รหัสผ่านใหม่</label>
+                    <input type="password" id="cpNew" class="w-full bg-slate-50 dark:bg-slate-900 border dark:border-slate-700 p-3 rounded-xl text-sm">
+                </div>
+                <div class="flex gap-2 mt-4">
+                    <button onclick="closeChangePasswordModal()" class="flex-1 bg-slate-100 dark:bg-slate-700 py-3 rounded-xl font-bold">ยกเลิก</button>
+                    <button onclick="submitChangePassword()" class="flex-1 bg-primary text-white py-3 rounded-xl font-bold">ยืนยัน</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-[100001] flex flex-col items-center gap-2 pointer-events-none"></div>
+
+    <!-- ========================================================================================= -->
+    <!--                               JAVASCRIPT SECTION                                          -->
+    <!-- ========================================================================================= -->
+    <script>
+        /* ==========================================================================
+         * 1. CONFIGURATION & GLOBAL VARIABLES
+         * ========================================================================== */
+        const SUPABASE_URL = "https://yeehevebccstyufljdor.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InllZWhldmViY2NzdHl1ZmxqZG9yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0NTMzMTcsImV4cCI6MjA5MTAyOTMxN30.t1UDcKKeCWMR8SNUj3t0L9Gp5IiYJiFac2LdO7jw_Do";
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        const LS_PENDING_KEY = "st20_queue_add";
+        const LS_QA_PENDING_KEY = "st20_queue_qa";
+        const DB_NAME = 'ST20_MasterDB';
+        const DB_VERSION = 2;
+        const STORE_NAME = 'masterCache';
+        const STORE_INV = 'inventoryCache';
+
+        let stockData = [];
+        let pendingItems = [];
+        let qaPendingItems = [];
+        let filteredGroups = [];
+        
+        let currentPage = 1; 
+        const itemsPerPage = 10;
+        
+        let myUserName = "";
+        let html5Scanner = null;
+        let qaCurrentAisle = '';
+        let currentScannedProduct = null;
+        let masterBaysCache = [];
+        let transferCurrentItem = null;
+        let transferSourceBays = [];
+        let masterDataRAM = new Map();
+        let lastAutoSync = 0;
+        let currentDbUsername = ""; // เพิ่มเก็บ Username ตัวจริงไว้เปลี่ยนรหัสผ่าน
+        let globalHistoryData = []; // เก็บข้อมูลประวัติชั่วคราว
+        
+        // Offline Queue Management
+        let offlineTasks = JSON.parse(localStorage.getItem('st20_offline_tasks') || '[]');
+
+
+        /* ==========================================================================
+         * 2. CACHING & DATABASE (IndexedDB)
+         * ========================================================================== */
+        function openDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+                    if (!db.objectStoreNames.contains(STORE_NAME)) db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+                    if (!db.objectStoreNames.contains(STORE_INV)) db.createObjectStore(STORE_INV, { keyPath: 'ID' });
+                };
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        async function loadMasterDataToRAM() {
+            try {
+                const db = await openDB();
+                return new Promise((resolve) => {
+                    const tx = db.transaction(STORE_NAME, 'readonly');
+                    const request = tx.objectStore(STORE_NAME).getAll();
+                    request.onsuccess = () => {
+                        masterDataRAM.clear();
+                        if (request.result) {
+                            request.result.forEach(item => masterDataRAM.set(String(item.id).toLowerCase(), item.data));
+                        }
+                        resolve();
+                    };
+                    request.onerror = () => resolve();
+                });
+            } catch(e) { console.error(e); }
+        }
+
+        async function loadInventoryDataToRAM() {
+            try {
+                const db = await openDB();
+                return new Promise((resolve) => {
+                    const tx = db.transaction(STORE_INV, 'readonly');
+                    const request = tx.objectStore(STORE_INV).getAll();
+                    request.onsuccess = () => {
+                        if (request.result && request.result.length > 0) stockData = request.result;
+                        resolve();
+                    };
+                    request.onerror = () => resolve();
+                });
+            } catch(e) { console.error(e); }
+        }
+
+        async function getMasterCache(key) {
+            const q = String(key).toLowerCase();
+            return masterDataRAM.has(q) ? masterDataRAM.get(q) : null;
+        }
+
+        async function setMasterCache(key, data) {
+            if(!key) return;
+            const q = String(key).toLowerCase();
+            masterDataRAM.set(q, data);
+            try {
+                const db = await openDB();
+                return new Promise((resolve, reject) => {
+                    const tx = db.transaction(STORE_NAME, 'readwrite');
+                    const request = tx.objectStore(STORE_NAME).put({ id: q, data: data });
+                    request.onsuccess = () => resolve(true);
+                    request.onerror = () => reject(request.error);
+                });
+            } catch(e) { console.error(e); }
+        }
+
+
+        /* ==========================================================================
+         * 3. API FETCHING & SYNCING (Supabase)
+         * ========================================================================== */
+        function updateOfflineIndicator() {
+            const icon = document.getElementById('offlineIndicator');
+            if (offlineTasks.length > 0 || !navigator.onLine) {
+                icon.classList.remove('hidden');
+            } else {
+                icon.classList.add('hidden');
+            }
+        }
+
+        async function processOfflineTasks() {
+            if(!navigator.onLine || offlineTasks.length === 0) return;
+            
+            showLoader(true, "กำลังซิงค์ข้อมูลออฟไลน์...");
+            let successCount = 0;
+            let failedTasks = [];
+
+            for(let task of offlineTasks) {
+                try {
+                    if(task.action === 'rpc') {
+                        const {error} = await supabaseClient.rpc(task.fn, task.params);
+                        if(error) throw error;
+                    } else if(task.action === 'insert') {
+                        const {error} = await supabaseClient.from(task.table).insert(task.payload);
+                        if(error) throw error;
+                    } else if(task.action === 'update') {
+                        const {error} = await supabaseClient.from(task.table).update(task.payload).eq(task.eqCol, task.eqVal);
+                        if(error) throw error;
+                    } else if(task.action === 'delete') {
+                        const {error} = await supabaseClient.from(task.table).delete().eq(task.eqCol, task.eqVal);
+                        if(error) throw error;
+                    }
+                    successCount++;
+                } catch(e) {
+                    console.error("Offline sync fail:", e);
+                    failedTasks.push(task);
+                }
+            }
+            
+            offlineTasks = failedTasks;
+            localStorage.setItem('st20_offline_tasks', JSON.stringify(offlineTasks));
+            updateOfflineIndicator();
+            showLoader(false);
+            
+            if(successCount > 0) {
+                showToast(`ซิงค์ข้อมูลที่ค้างสำเร็จ ${successCount} รายการ!`);
+                syncDataFromSheets(true); // รีโหลด Data กลับมาให้ชัวร์
+            }
+        }
+
+        window.addEventListener('online', processOfflineTasks);
+        window.addEventListener('offline', updateOfflineIndicator);
+
+        // --- Safe Supabase Wrappers (ยิง API ปลอดภัย มีคิวรองรับ) ---
+        async function safeSupabaseInsert(table, payload) {
+            if(navigator.onLine) {
+                const {error} = await supabaseClient.from(table).insert(payload);
+                if(error) throw error;
+            } else {
+                offlineTasks.push({action: 'insert', table, payload});
+                localStorage.setItem('st20_offline_tasks', JSON.stringify(offlineTasks));
+                updateOfflineIndicator();
+                showToast("ออฟไลน์: บันทึกข้อมูลเข้าคิวแล้ว", false);
+            }
+        }
+
+        async function safeSupabaseUpdate(table, payload, eqCol, eqVal) {
+            if(navigator.onLine) {
+                const {error} = await supabaseClient.from(table).update(payload).eq(eqCol, eqVal);
+                if(error) throw error;
+            } else {
+                offlineTasks.push({action: 'update', table, payload, eqCol, eqVal});
+                localStorage.setItem('st20_offline_tasks', JSON.stringify(offlineTasks));
+                updateOfflineIndicator();
+            }
+        }
+
+        async function safeSupabaseDelete(table, eqCol, eqVal) {
+            if(navigator.onLine) {
+                const {error} = await supabaseClient.from(table).delete().eq(eqCol, eqVal);
+                if(error) throw error;
+            } else {
+                offlineTasks.push({action: 'delete', table, eqCol, eqVal});
+                localStorage.setItem('st20_offline_tasks', JSON.stringify(offlineTasks));
+                updateOfflineIndicator();
+            }
+        }
+
+        async function safeSupabaseRpc(fn, params) {
+            if(navigator.onLine) {
+                return await supabaseClient.rpc(fn, params);
+            } else {
+                offlineTasks.push({action: 'rpc', fn, params});
+                localStorage.setItem('st20_offline_tasks', JSON.stringify(offlineTasks));
+                updateOfflineIndicator();
+                return { error: null }; // จำลองว่าสำเร็จตอนออฟไลน์
+            }
+        }
+        // ------------------------------------------------
+
+        async function fetchItemFromServer(query) {
+            const q = String(query).trim().toLowerCase();
+            return await getMasterCache(q); 
+        }
+
+        async function fetchAllRows(tableName) {
+            let allData = []; 
+            let limit = 1000; 
+            let start = 0; 
+            let hasMore = true;
+            
+            while (hasMore) {
+                const { data, error } = await supabaseClient.from(tableName).select('*').range(start, start + limit - 1);
+                if (error) throw error;
+                allData = allData.concat(data);
+                if (data.length < limit) hasMore = false;
+                else start += limit;
+            }
+            return { data: allData, error: null };
+        }
+
+        async function downloadMasterData() {
+            document.getElementById('btnStartMasterSync').style.display = 'none';
+            document.getElementById('btnCancelMasterSync').style.display = 'none';
+            document.getElementById('msStatusText').textContent = 'กำลังดึงข้อมูล...';
+            document.getElementById('msProgressBar').style.width = '10%';
+            
+            try {
+                const { data: rawData, error } = await fetchAllRows('MasterData');
+                if (error) throw error;
+                if (rawData && rawData.length > 0) {
+                    const total = rawData.length;
+                    document.getElementById('msStatusText').textContent = `โหลดสำเร็จ ${total} รายการ...`;
+                    document.getElementById('msProgressBar').style.width = '50%';
+                    await new Promise(r => setTimeout(r, 50));
+                    
+                    const db = await openDB();
+                    const clearTx = db.transaction(STORE_NAME, 'readwrite');
+                    clearTx.objectStore(STORE_NAME).clear();
+                    await new Promise(r => { clearTx.oncomplete = r; clearTx.onerror = r; });
+                    
+                    masterDataRAM.clear();
+                    const tx = db.transaction(STORE_NAME, 'readwrite');
+                    const store = tx.objectStore(STORE_NAME);
+
+                    for (let i = 0; i < total; i++) {
+                        const item = rawData[i];
+                        const itemNo = getField(item, ['itemno', 'item', 'itemnumber', 'รหัสสินค้า']);
+                        const barcode = getField(item, ['barcode', 'บาร์โค้ด']) || itemNo;
+                        const description = getField(item, ['description', 'desc', 'name', 'ชื่อสินค้า']);
+                        const lastUser = getField(item, ['lastuser', 'user', 'updatedby', 'ผู้บันทึก']);
+
+                        const normalized = {
+                            ID: String(Math.random()).substr(2, 9),
+                            ItemNo: String(itemNo || 'Unknown'),
+                            AisleBay: 'Unknown',
+                            Description: String(description || ''),
+                            Qty: 0,
+                            Barcode: String(barcode || 'Unknown'),
+                            LastUser: String(lastUser || ''),
+                            Date: ''
+                        };
+                        
+                        if (normalized.ItemNo) {
+                            const id1 = String(normalized.ItemNo).toLowerCase();
+                            store.put({ id: id1, data: normalized }); 
+                            masterDataRAM.set(id1, normalized);
+                        }
+                        if (normalized.Barcode && normalized.Barcode !== normalized.ItemNo) {
+                            const id2 = String(normalized.Barcode).toLowerCase();
+                            store.put({ id: id2, data: normalized }); 
+                            masterDataRAM.set(id2, normalized);
+                        }
+                    }
+                    
+                    tx.oncomplete = () => {
+                        document.getElementById('msProgressBar').style.width = '100%';
+                        document.getElementById('msProgressText').textContent = '100%';
+                        localStorage.setItem('lastMasterSyncTime', new Date().getTime().toString());
+                        updateMasterDataTimestampUI();
+                        setTimeout(() => {
+                            closeMasterSyncModal();
+                            showToast("อัปเดต Master เรียบร้อย");
+                            if (stockData.length === 0) setTimeout(() => openInventorySyncModal(true), 500);
+                        }, 1000);
+                    };
+                } else { 
+                    throw new Error("No data"); 
+                }
+            } catch (e) {
+                document.getElementById('msStatusText').textContent = 'ล้มเหลว ลองใหม่';
+                document.getElementById('btnStartMasterSync').style.display = 'block';
+                document.getElementById('btnCancelMasterSync').style.display = 'block';
+            }
+        }
+
+        async function downloadInventoryData() {
+            document.getElementById('btnStartInventorySync').style.display = 'none';
+            document.getElementById('btnCancelInventorySync').style.display = 'none';
+            document.getElementById('isStatusText').textContent = 'กำลังดึงข้อมูล...';
+            document.getElementById('isProgressBar').style.width = '20%';
+            
+            try {
+                const { data: invData, error } = await fetchAllRows('Inventory');
+                if (error) throw error;
+                
+                const normalized = normalizeData(invData || []);
+                const total = normalized.length;
+                
+                document.getElementById('isStatusText').textContent = `สำเร็จ ${total} รายการ...`;
+                document.getElementById('isProgressBar').style.width = '60%';
+                
+                const db = await openDB();
+                const clearTx = db.transaction(STORE_INV, 'readwrite');
+                clearTx.objectStore(STORE_INV).clear();
+                await new Promise(r => { clearTx.oncomplete = r; clearTx.onerror = r; });
+                
+                const tx = db.transaction(STORE_INV, 'readwrite');
+                const store = tx.objectStore(STORE_INV);
+                for (let i = 0; i < total; i++) store.put(normalized[i]);
+                
+                tx.oncomplete = () => {
+                    stockData = normalized; 
+                    updateDashboardStats();
+                    if(document.getElementById('view-search').classList.contains('active')) {
+                        renderSearchList(document.getElementById('searchInput').value);
+                    }
+                    document.getElementById('isProgressBar').style.width = '100%';
+                    localStorage.setItem('lastInventorySyncTime', new Date().getTime().toString());
+                    updateInventoryTimestampUI();
+                    
+                    setTimeout(() => {
+                        closeInventorySyncModal();
+                        showToast("ข้อมูลสต๊อกพร้อมใช้งาน");
+                        if (masterDataRAM.size === 0) setTimeout(() => openMasterSyncModal(true), 500);
+                    }, 1000);
+                };
+            } catch (e) {
+                document.getElementById('isStatusText').textContent = 'ล้มเหลว ลองใหม่';
+                document.getElementById('btnStartInventorySync').style.display = 'block';
+                document.getElementById('btnCancelInventorySync').style.display = 'block';
+            }
+        }
+
+        async function syncDataFromSheets(silent = false) {
+            if(!silent) { openInventorySyncModal(false); return; }
+            try {
+                const { data: invData, error } = await fetchAllRows('Inventory');
+                if (error) throw error;
+                
+                const normalized = normalizeData(invData || []);
+                stockData = normalized;
+                updateDashboardStats(); 
+                
+                if(document.getElementById('view-search').classList.contains('active')) {
+                    renderSearchList(document.getElementById('searchInput').value);
+                }
+
+                const db = await openDB();
+                const clearTx = db.transaction(STORE_INV, 'readwrite');
+                clearTx.objectStore(STORE_INV).clear();
+                await new Promise(r => { clearTx.oncomplete = r; clearTx.onerror = r; });
+                
+                const tx = db.transaction(STORE_INV, 'readwrite');
+                const store = tx.objectStore(STORE_INV);
+                for(let i = 0; i < normalized.length; i++) store.put(normalized[i]);
+                
+                tx.oncomplete = () => {
+                    localStorage.setItem('lastInventorySyncTime', new Date().getTime().toString());
+                    updateInventoryTimestampUI();
+                };
+            } catch (e) { console.error("Sync Error", e); }
+        }
+
+
+        /* ==========================================================================
+         * 4. UTILITIES & HELPER FUNCTIONS
+         * ========================================================================== */
+        function getField(obj, possibleNames) {
+            if (!obj) return '';
+            const lowerNames = possibleNames.map(n => n.toLowerCase());
+            const key = Object.keys(obj).find(k => lowerNames.includes(String(k).toLowerCase().replace(/[\s_]/g, '')));
+            return key !== undefined ? obj[key] : '';
+        }
+
+        function formatAisleStrict(val) {
+            let v = val.toUpperCase().replace(/[^A-Z0-9]/g, ''); 
+            if(v.length > 3) v = v.substring(0,3) + '-' + v.substring(3,6); 
+            return v;
+        }
+
+        function normalizeData(dataArray) {
+            if (!Array.isArray(dataArray) || dataArray.length === 0) return [];
+            const result = [];
+            for (let i = 0; i < dataArray.length; i++) {
+                const obj = dataArray[i];
+                const itemNo = getField(obj, ['itemno', 'item', 'itemnumber', 'รหัสสินค้า']);
+                const aisleBay = getField(obj, ['aislebay', 'aisle', 'bay', 'location']);
+                const id = getField(obj, ['id']);
+                
+                if (!itemNo && !aisleBay && !id) continue;
+                const qty = Number(getField(obj, ['qty', 'quantity', 'จำนวน'])) || 0;
+                if (qty <= 0) continue;
+
+                result.push({
+                    ID: String(id || 'inv_' + Date.now() + Math.random().toString(36).substring(2, 9)),
+                    ItemNo: String(itemNo || 'Unknown'),
+                    AisleBay: String(aisleBay || 'Unknown'),
+                    Description: String(getField(obj, ['description', 'desc', 'name', 'ชื่อสินค้า']) || ''),
+                    Qty: qty,
+                    Barcode: String(getField(obj, ['barcode', 'บาร์โค้ด']) || itemNo || 'Unknown'),
+                    LastUser: String(getField(obj, ['lastuser', 'user', 'updatedby', 'ผู้บันทึก']) || ''),
+                    Date: String(getField(obj, ['date', 'เวลา']) || '')
+                });
+            }
+            return result;
+        }
+
+        function normalizeSingleItem(obj) {
+            if(!obj) return null;
+            const itemNo = getField(obj, ['itemno', 'item', 'itemnumber', 'รหัสสินค้า']);
+            return {
+                ID: String(getField(obj, ['id']) || 'inv_' + Date.now()),
+                ItemNo: String(itemNo || 'Unknown'),
+                AisleBay: String(getField(obj, ['aislebay', 'aisle', 'bay', 'location']) || 'Unknown'),
+                Description: String(getField(obj, ['description', 'desc', 'name', 'ชื่อสินค้า']) || ''),
+                Qty: Number(getField(obj, ['qty', 'quantity', 'จำนวน'])) || 0,
+                Barcode: String(getField(obj, ['barcode', 'บาร์โค้ด']) || itemNo || 'Unknown'),
+                LastUser: String(getField(obj, ['lastuser', 'user', 'updatedby', 'ผู้บันทึก']) || ''),
+                Date: String(getField(obj, ['date', 'เวลา']) || '')
+            };
+        }
+
+        function playScanSuccess() {
+            if ("vibrate" in navigator) navigator.vibrate(100);
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if(!AudioContext) return;
+                const ctx = new AudioContext(); 
+                const osc = ctx.createOscillator(); 
+                const gain = ctx.createGain();
+                
+                osc.connect(gain); 
+                gain.connect(ctx.destination);
+                osc.type = 'sine'; 
+                osc.frequency.setValueAtTime(800, ctx.currentTime);
+                gain.gain.setValueAtTime(0.1, ctx.currentTime); 
+                osc.start();
+                gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.1); 
+                osc.stop(ctx.currentTime + 0.1);
+            } catch(e) {}
+        }
+
+        function updateDigitalClock() {
+            const now = new Date();
+            const clockEl = document.getElementById('realTimeClock');
+            const dateEl = document.getElementById('realTimeDate');
+            if(clockEl && dateEl) {
+                clockEl.textContent = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+                dateEl.textContent = now.toLocaleDateString('th-TH', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
+            }
+        }
+
+
+        /* ==========================================================================
+         * 5. UI COMPONENTS (Loader, Toast, Modal, Theme)
+         * ========================================================================== */
+        function toggleTheme() {
+            const html = document.documentElement;
+            if (html.classList.contains('dark')) { 
+                html.classList.remove('dark'); 
+                localStorage.setItem('theme', 'light'); 
+            } else { 
+                html.classList.add('dark'); 
+                localStorage.setItem('theme', 'dark'); 
+            }
+        }
+
+        function showLoader(show, txt="Processing...") { 
+            const l = document.getElementById('bgLoader'); 
+            document.getElementById('bgLoaderText').textContent = txt;
+            if(show) { 
+                l.classList.remove('-translate-y-24', 'opacity-0'); 
+                l.classList.add('translate-y-0', 'opacity-100'); 
+            } else { 
+                l.classList.remove('translate-y-0', 'opacity-100'); 
+                l.classList.add('-translate-y-24', 'opacity-0'); 
+            } 
+        }
+
+        function showToast(message, isErr = false) { 
+            const c = document.getElementById('toast-container');
+            const t = document.createElement('div');
+            t.className = `toast-enter flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg text-xs font-bold text-white ${isErr ? 'bg-red-600' : 'bg-slate-800'}`;
+            t.innerHTML = `<span>${message}</span>`; 
+            c.appendChild(t);
+            setTimeout(() => { 
+                t.classList.remove('toast-enter'); 
+                t.classList.add('toast-leave'); 
+                t.addEventListener('animationend', () => t.remove()); 
+            }, 3000); 
+        }
+
+        function showAwesomeDialog({ title, text, icon = 'info', type = 'confirm', defaultValue = '' }) {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('awesomeDialog');
+                const box = document.getElementById('adBox');
+                document.getElementById('adTitle').textContent = title;
+                document.getElementById('adText').innerHTML = text.replace(/\n/g, '<br>');
+                
+                const inputEl = document.getElementById('adInput');
+                const btnCancel = document.getElementById('adBtnCancel');
+                const btnConfirm = document.getElementById('adBtnConfirm');
+
+                if (type === 'prompt') { 
+                    inputEl.classList.remove('hidden'); 
+                    inputEl.value = defaultValue; 
+                } else { 
+                    inputEl.classList.add('hidden'); 
+                }
+
+                if (type === 'alert') { 
+                    btnCancel.classList.add('hidden'); 
+                } else { 
+                    btnCancel.classList.remove('hidden'); 
+                }
+
+                modal.classList.add('modal-active');
+                setTimeout(() => { 
+                    box.classList.add('modal-box-active'); 
+                    if(type === 'prompt') inputEl.focus(); 
+                }, 10);
+
+                const close = (result) => {
+                    box.classList.remove('modal-box-active');
+                    setTimeout(() => { 
+                        modal.classList.remove('modal-active'); 
+                        resolve(result); 
+                    }, 300);
+                    btnConfirm.onclick = null; 
+                    btnCancel.onclick = null; 
+                    inputEl.onkeypress = null;
+                };
+
+                btnCancel.onclick = () => close(null);
+                btnConfirm.onclick = () => close(type === 'prompt' ? inputEl.value : true);
+                if (type === 'prompt') {
+                    inputEl.onkeypress = (e) => { 
+                        if(e.key === 'Enter') close(inputEl.value); 
+                    };
+                }
+            });
+        }
+
+        function updateMasterDataTimestampUI() {
+            const el = document.getElementById('masterDataTimestamp');
+            const lastSync = localStorage.getItem('lastMasterSyncTime');
+            el.textContent = lastSync ? `อัปเดตล่าสุด: ${new Date(parseInt(lastSync)).toLocaleString('th-TH')}` : 'อัปเดตล่าสุด: ยังไม่มีข้อมูล';
+        }
+
+        function updateInventoryTimestampUI() {
+            const el = document.getElementById('inventoryDataTimestamp');
+            const lastSync = localStorage.getItem('lastInventorySyncTime');
+            el.textContent = lastSync ? `อัปเดตล่าสุด: ${new Date(parseInt(lastSync)).toLocaleString('th-TH')}` : 'อัปเดตล่าสุด: ยังไม่มีข้อมูล';
+        }
+
+
+        /* ==========================================================================
+         * 6. NAVIGATION & ROUTING
+         * ========================================================================== */
+        function navigateTo(v) { 
+            document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active')); 
+            document.getElementById(`view-${v}`).classList.add('active'); 
+            
+            document.getElementById('btnBack').style.display = v === 'home' ? 'none' : 'flex'; 
+            stopScanner(); 
+            
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            const activeNavBtn = document.querySelector(`.nav-item[data-view="${v}"]`);
+            if(activeNavBtn) activeNavBtn.classList.add('active');
+            
+            if(v === 'search') renderSearchList(document.getElementById('searchInput').value); 
+        }
+
+        function toggleFullScreen() {
+            const doc = window.document, docEl = doc.documentElement;
+            if (!doc.fullscreenElement) { 
+                if(docEl.requestFullscreen) docEl.requestFullscreen().catch(()=>{}); 
+            } else { 
+                if(doc.exitFullscreen) doc.exitFullscreen(); 
+            }
+        }
+
+        ;['fullscreenchange', 'webkitfullscreenchange'].forEach(evt => document.addEventListener(evt, () => {
+            const i = document.getElementById('fullscreenIcon'); 
+            if(!i) return;
+            if (!window.document.fullscreenElement) { 
+                i.classList.remove('fa-compress'); 
+                i.classList.add('fa-expand'); 
+            } else { 
+                i.classList.remove('fa-expand'); 
+                i.classList.add('fa-compress'); 
+            }
+        }));
+
+
+        /* ==========================================================================
+         * 7. AUTHENTICATION & SESSION
+         * ========================================================================== */
+        function switchLoginTab(tab) {
+            const fLogin = document.getElementById('form-login');
+            const fReg = document.getElementById('form-register');
+            const fForgot = document.getElementById('form-forgot');
+            const tLogin = document.getElementById('tab-login');
+            const tReg = document.getElementById('tab-register');
+            
+            fLogin.classList.add('hidden');
+            fReg.classList.add('hidden');
+            fForgot.classList.add('hidden');
+            
+            const activeTabClass = "flex-1 py-3.5 text-sm font-bold text-primary border-b-2 border-primary bg-indigo-50/50 dark:bg-slate-800 transition-all";
+            const inactiveTabClass = "flex-1 py-3.5 text-sm font-bold text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white border-b-2 border-transparent bg-white dark:bg-slate-900 transition-all";
+            
+            if(tab === 'login') {
+                fLogin.classList.remove('hidden');
+                tLogin.className = activeTabClass;
+                tReg.className = inactiveTabClass;
+            } else if(tab === 'register') {
+                fReg.classList.remove('hidden');
+                tReg.className = activeTabClass;
+                tLogin.className = inactiveTabClass;
+            } else if(tab === 'forgot') {
+                fForgot.classList.remove('hidden');
+                tLogin.className = inactiveTabClass;
+                tReg.className = inactiveTabClass;
+            }
+        }
+
+        async function doRegister() {
+            const user = document.getElementById('regUsername').value.trim();
+            const name = document.getElementById('regName').value.trim();
+            const div = document.getElementById('regDivision').value;
+            const pass = document.getElementById('regPass').value.trim();
+            
+            if(!user || !name || !div || !pass) { 
+                showToast("กรุณากรอกข้อมูลให้ครบถ้วน", true); 
+                return; 
+            }
+
+            showLoader(true, "กำลังตรวจสอบข้อมูล...");
+
+            try {
+                // 1. เช็คว่า Username ซ้ำไหม
+                const { data: userExist } = await supabaseClient.from('AppUsers').select('username').eq('username', user);
+                if (userExist && userExist.length > 0) {
+                    showLoader(false);
+                    showToast("Username นี้มีผู้ใช้งานแล้ว", true);
+                    return;
+                }
+
+                // 2. เช็คว่า ชื่อ ซ้ำไหม
+                const { data: nameExist } = await supabaseClient.from('AppUsers').select('firstname').eq('firstname', name);
+                if (nameExist && nameExist.length > 0) {
+                    showLoader(false);
+                    showToast("ชื่อนี้ถูกใช้สมัครไปแล้ว กรุณาระบุชื่ออื่น", true);
+                    return;
+                }
+
+                // 3. สร้าง User ใหม่ (เมื่อไม่ซ้ำทั้ง Username และ ชื่อ)
+                const { error } = await supabaseClient.from('AppUsers').insert([{
+                    username: user,
+                    firstname: name,
+                    division: div,
+                    password: pass,
+                    role: 'user',
+                    reset_requested: false
+                }]);
+
+                showLoader(false);
+
+                if (error) throw error;
+                
+                showToast("สมัครสมาชิกสำเร็จ! กรุณาล็อกอิน");
+                document.getElementById('genUsername').value = user;
+                switchLoginTab('login');
+                
+            } catch (err) {
+                showLoader(false);
+                console.error(err);
+                showToast("ไม่สามารถสมัครได้ (โปรดเช็คตาราง AppUsers)", true);
+            }
+        }
+
+        async function requestPasswordReset() {
+            const user = document.getElementById('forgotUsername').value.trim();
+            if(!user) { showToast("กรุณากรอก Username", true); return; }
+
+            try {
+                const { data, error } = await supabaseClient.from('AppUsers').update({ reset_requested: true }).eq('username', user).select();
+                if (data && data.length > 0) {
+                    showToast("ส่งคำขอแล้ว! โปรดแจ้งแอดมิน(SSS/ALC)ให้อนุมัติ");
+                    switchLoginTab('login');
+                } else {
+                    showToast("ไม่พบ Username นี้ในระบบ", true);
+                }
+            } catch (err) {
+                showToast("เกิดข้อผิดพลาดในการเชื่อมต่อ", true);
+            }
+        }
+
+        async function doRealLogin() {
+            const user = document.getElementById('genUsername').value.trim();
+            const pass = document.getElementById('genPassword').value.trim();
+
+            if(!user || !pass) { 
+                showToast("กรุณากรอก Username และ Password", true); 
+                return; 
+            }
+
+            // Hardcoded Admin Super Fallback
+            if(user === "Admin" && pass === "7890") {
+                currentDbUsername = "Admin";
+                localStorage.setItem('savedDbUsername', currentDbUsername);
+                myUserName = `Admin[Super]admin`; 
+                localStorage.setItem('savedUser', myUserName); 
+                loginSuccess();
+                return;
+            }
+
+            showLoader(true, "กำลังตรวจสอบ...");
+            try {
+                const { data, error } = await supabaseClient.from('AppUsers')
+                    .select('*')
+                    .eq('username', user)
+                    .eq('password', pass);
+
+                showLoader(false);
+
+                if (data && data.length > 0) {
+                    const dbUser = data[0];
+                    currentDbUsername = dbUser.username;
+                    localStorage.setItem('savedDbUsername', currentDbUsername);
+                    
+                    let roleDisplay = dbUser.role === 'admin' ? 'admin' : 'user';
+                    let divDisplay = dbUser.division ? dbUser.division : '-';
+                    myUserName = `${dbUser.firstname}[${divDisplay}]${roleDisplay}`;
+                    
+                    localStorage.setItem('savedUser', myUserName); 
+                    loginSuccess();
+                    
+                    if (dbUser.role === 'admin') checkPendingResets();
+                } else {
+                    showToast("Username หรือ Password ไม่ถูกต้อง!", true);
+                }
+            } catch (err) {
+                showLoader(false);
+                showToast("ไม่สามารถเชื่อมต่อฐานข้อมูลได้", true);
+            }
+        }
+        
+        function openChangePasswordModal() {
+            document.getElementById('cpOld').value = '';
+            document.getElementById('cpNew').value = '';
+            document.getElementById('changePasswordModal').classList.add('modal-active');
+            setTimeout(() => document.getElementById('cpBox').classList.add('modal-box-active'), 50);
+        }
+
+        function closeChangePasswordModal() {
+            document.getElementById('cpBox').classList.remove('modal-box-active');
+            setTimeout(() => document.getElementById('changePasswordModal').classList.remove('modal-active'), 300);
+        }
+
+        async function submitChangePassword() {
+            const oldPass = document.getElementById('cpOld').value.trim();
+            const newPass = document.getElementById('cpNew').value.trim();
+            
+            if(!oldPass || !newPass) { showToast("กรุณากรอกข้อมูลให้ครบ", true); return; }
+            if(!currentDbUsername) { showToast("เซสชั่นหมดอายุ กรุณาล็อกอินใหม่", true); return; }
+
+            showLoader(true, "กำลังเปลี่ยนรหัสผ่าน...");
+            try {
+                // เช็คว่ารหัสผ่านเก่าตรงไหม
+                const { data: exist } = await supabaseClient.from('AppUsers').select('id').eq('username', currentDbUsername).eq('password', oldPass);
+                
+                if (exist && exist.length > 0) {
+                    const { error } = await supabaseClient.from('AppUsers').update({ password: newPass }).eq('username', currentDbUsername);
+                    if(!error) {
+                        showToast("เปลี่ยนรหัสผ่านสำเร็จ!");
+                        closeChangePasswordModal();
+                    } else { throw error; }
+                } else {
+                    showToast("รหัสผ่านเดิมไม่ถูกต้อง", true);
+                }
+            } catch (err) {
+                showToast("เกิดข้อผิดพลาดในการเปลี่ยนรหัส", true);
+            }
+            showLoader(false);
+        }
+
+        async function checkPendingResets() {
+            try {
+                const { data } = await supabaseClient.from('AppUsers').select('id').eq('reset_requested', true);
+                const badge = document.getElementById('adminResetBadge');
+                if (data && data.length > 0 && badge) {
+                    badge.classList.remove('hidden');
+                    showToast("แจ้งเตือน: มีผู้ใช้ขอรีเซ็ตรหัสผ่านค้างอยู่!", false);
+                } else if(badge) {
+                    badge.classList.add('hidden');
+                }
+            } catch(e) {}
+        }
+
+        // Admin User Management Logic
+        let cachedAppUsers = [];
+        
+        async function openAdminUserManage() {
+            document.getElementById('adminUserManageModal').classList.add('modal-active');
+            document.getElementById('aumLoader').classList.remove('hidden');
+            document.getElementById('aumList').innerHTML = '';
+            setTimeout(() => document.getElementById('aumBox').classList.add('modal-box-active'), 50);
+            
+            try {
+                const { data, error } = await supabaseClient.from('AppUsers').select('*').order('reset_requested', { ascending: false });
+                document.getElementById('aumLoader').classList.add('hidden');
+                if (data) {
+                    cachedAppUsers = data;
+                    renderAdminUserList('');
+                    checkPendingResets(); // Update badge
+                }
+            } catch(e) {
+                document.getElementById('aumLoader').classList.add('hidden');
+                document.getElementById('aumList').innerHTML = '<div class="text-center text-sm py-4 text-red-500">ไม่พบ Table AppUsers</div>';
+            }
+        }
+
+        function closeAdminUserManage() {
+            document.getElementById('aumBox').classList.remove('modal-box-active');
+            setTimeout(() => document.getElementById('adminUserManageModal').classList.remove('modal-active'), 300);
+        }
+
+        function renderAdminUserList(query) {
+            const list = document.getElementById('aumList');
+            let filtered = cachedAppUsers;
+            if (query) {
+                const q = query.toLowerCase();
+                filtered = cachedAppUsers.filter(u => u.username.toLowerCase().includes(q) || u.firstname.toLowerCase().includes(q));
+            }
+
+            if(filtered.length === 0) {
+                list.innerHTML = '<div class="text-center text-sm py-4 dark:text-slate-400">ไม่มีข้อมูล</div>';
+                return;
+            }
+
+            list.innerHTML = filtered.map(u => {
+                const isPending = u.reset_requested;
+                const roleBadge = u.role === 'admin' ? '<span class="bg-slate-800 text-white text-[9px] px-1.5 py-0.5 rounded">Admin</span>' : '';
+                
+                // เพิ่มปุ่มลบ User (ซ่อนไว้ถ้าเป็น Admin)
+                const deleteBtn = u.role === 'admin' ? '' : `
+                    <button onclick="adminDeleteUser('${u.id}', '${u.username}')" class="w-8 h-8 rounded-full bg-red-100 hover:bg-red-200 text-red-500 dark:bg-red-900/50 dark:text-red-400 transition-colors flex items-center justify-center ml-1" title="ลบผู้ใช้">
+                        <i class="fas fa-trash text-xs"></i>
+                    </button>
+                `;
+
+                return `
+                    <div class="bg-white dark:bg-slate-800 p-3 rounded-xl border ${isPending ? 'border-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.3)]' : 'dark:border-slate-700'} mb-2 flex justify-between items-center">
+                        <div>
+                            <div class="font-bold text-sm dark:text-white flex items-center gap-2">
+                                ${u.firstname} <span class="text-xs text-slate-500 font-normal">(${u.division || '-'})</span> ${roleBadge}
+                                ${isPending ? '<span class="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-bold animate-pulse">ขอรีเซ็ตรหัส!</span>' : ''}
+                            </div>
+                            <div class="text-xs text-slate-500 dark:text-slate-400">@${u.username}</div>
+                        </div>
+                        <div class="flex">
+                            <button onclick="adminResetPassword('${u.id}', '${u.username}')" class="w-8 h-8 rounded-full ${isPending ? 'bg-amber-500 hover:bg-amber-600 text-white' : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:text-white'} transition-colors flex items-center justify-center" title="เปลี่ยนรหัสผ่าน">
+                                <i class="fas fa-key text-xs"></i>
+                            </button>
+                            ${deleteBtn}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function adminResetPassword(id, username) {
+            const newPass = await showAwesomeDialog({ 
+                title: "ตั้งรหัสผ่านใหม่", 
+                text: `ตั้งรหัสผ่านใหม่ให้กับ User: ${username}`, 
+                icon: "key", 
+                type: "prompt" 
+            });
+
+            if (newPass) {
+                try {
+                    const { error } = await supabaseClient.from('AppUsers').update({ 
+                        password: newPass, 
+                        reset_requested: false 
+                    }).eq('id', id);
+                    
+                    if (!error) {
+                        showToast(`ตั้งรหัสผ่านใหม่ให้ ${username} สำเร็จ!`);
+                        openAdminUserManage(); // Reload
+                    } else {
+                        showToast("เกิดข้อผิดพลาด", true);
+                    }
+                } catch(e) {}
+            }
+        }
+
+        // ฟังก์ชันใหม่สำหรับลบผู้ใช้งาน
+        async function adminDeleteUser(id, username) {
+            const confirmed = await showAwesomeDialog({ 
+                title: "ลบผู้ใช้งาน", 
+                text: `คุณต้องการลบ User: ${username} ออกจากระบบใช่หรือไม่?\n\n(การกระทำนี้ไม่สามารถย้อนกลับได้)`, 
+                icon: "danger"
+            });
+
+            if (confirmed) {
+                showLoader(true, "กำลังลบผู้ใช้งาน...");
+                try {
+                    const { error } = await supabaseClient.from('AppUsers').delete().eq('id', id);
+                    if (!error) {
+                        showToast(`ลบผู้ใช้งาน ${username} สำเร็จ!`);
+                        openAdminUserManage(); // รีโหลดลิสต์ผู้ใช้ใหม่
+                    } else {
+                        showToast("เกิดข้อผิดพลาดในการลบ", true);
+                    }
+                } catch(e) {
+                    showToast("เกิดข้อผิดพลาดในการเชื่อมต่อ", true);
+                }
+                showLoader(false);
+            }
+        }
+
+        function doGeneralLogin() {
+            // Function ถูกแทนที่ด้วย doRealLogin
+            doRealLogin('user');
+        }
+
+        function doAdminLogin() {
+            // Function ถูกแทนที่ด้วย doRealLogin
+            doRealLogin('admin');
+        }
+
+        function loginSuccess(isAutoLogin = false) {
+            document.getElementById('login-container').classList.add('hidden');
+            const appContainer = document.getElementById('app-container');
+            appContainer.classList.remove('hidden'); 
+            appContainer.classList.add('flex');
+            
+            document.getElementById('userNameDisplay').textContent = myUserName;
+            
+            // ตรวจสอบว่าเป็น Admin หรือไม่ จากรูปแบบ ชื่อ[Division]สิทธิ์
+            const isAdmin = myUserName.endsWith(']admin') || myUserName.startsWith("Admin");
+            
+            const adminShortcut = document.getElementById('adminShortcutContainer');
+            if(adminShortcut) {
+                if(isAdmin) {
+                    adminShortcut.classList.remove('hidden');
+                    setTimeout(autoCleanOldLogs, 5000);
+                }
+                else adminShortcut.classList.add('hidden');
+            }
+
+            if(!isAutoLogin) showToast(`ยินดีต้อนรับคุณ ${myUserName}`);
+            loadLocalQueues(); 
+            updateDashboardStats();
+            
+            // ข้ามการบังคับดาวน์โหลดข้อมูลหากเป็นแอดมิน (Admin ไม่ต้องรอโหลด)
+            if (!isAdmin) {
+                if (stockData.length === 0) { 
+                    openInventorySyncModal(true); 
+                } else if (masterDataRAM.size === 0) { 
+                    openMasterSyncModal(true); 
+                }
+            }
+
+            pingActiveUser();
+            updateOfflineIndicator();
+            processOfflineTasks();
+        }
+
+        async function signOut() {
+            const confirmed = await showAwesomeDialog({ title: "ออกจากระบบ", text: "คุณต้องการออกจากระบบใช่หรือไม่?", icon: "question" });
+            if(confirmed) {
+                myUserName = ""; 
+                localStorage.removeItem('savedUser');
+                
+                document.getElementById('app-container').classList.add('hidden');
+                document.getElementById('app-container').classList.remove('flex');
+                document.getElementById('login-container').classList.remove('hidden');
+                
+                switchLoginTab('login'); 
+                showToast("ออกจากระบบเรียบร้อยแล้ว");
+            }
+        }
+
+
+        /* ==========================================================================
+         * 8. LOGGING & TRACKING
+         * ========================================================================== */
+        async function logTransaction(action, itemNo, aisleBay, qtyChange, remark) {
+            try {
+                // ใช้ safe wrapper รองรับออฟไลน์
+                await safeSupabaseInsert('TransactionLogs', [{
+                    Date: new Date().toLocaleString('th-TH'),
+                    User: myUserName || 'System',
+                    Action: action,
+                    ItemNo: itemNo,
+                    AisleBay: aisleBay,
+                    QtyChange: qtyChange,
+                    Remark: remark
+                }]);
+            } catch(e) { console.error("Log failed", e); }
+        }
+
+        async function autoCleanOldLogs() {
+            try {
+                const { data, error } = await supabaseClient.from('TransactionLogs').select('id, Date');
+                if (error || !data) return;
+
+                const now = new Date().getTime();
+                const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
+                const idsToDelete = [];
+
+                data.forEach(log => {
+                    try {
+                        if(!log.Date) return;
+                        let dStr = log.Date.replace(',', '').split(' ')[0];
+                        let parts = dStr.split('/');
+                        if(parts.length === 3) {
+                            let d = parts[0], m = parts[1], y = parts[2];
+                            let year = parseInt(y);
+                            if (year > 2400) year -= 543;
+                            let logTime = new Date(`${year}-${m.padStart(2, '0')}-${d.padStart(2, '0')}T00:00:00`).getTime();
+                            if (now - logTime > thirtyDaysMs) idsToDelete.push(log.id);
+                        }
+                    } catch(e) {}
+                });
+
+                if (idsToDelete.length > 0) {
+                    for(let i = 0; i < idsToDelete.length; i += 500) {
+                        await supabaseClient.from('TransactionLogs').delete().in('id', idsToDelete.slice(i, i + 500));
+                    }
+                }
+            } catch (e) { console.error("Auto clean error", e); }
+        }
+
+        async function pingActiveUser() {
+            if (!myUserName) return;
+            try {
+                const nowStr = new Date().toISOString();
+                const { data } = await supabaseClient.from('ActiveUsers').select('User').eq('User', myUserName);
+                if (data && data.length > 0) {
+                    await supabaseClient.from('ActiveUsers').update({ LastSeen: nowStr }).eq('User', myUserName);
+                } else {
+                    await supabaseClient.from('ActiveUsers').insert([{ User: myUserName, LastSeen: nowStr }]);
+                }
+            } catch (e) {}
+        }
+
+
+        /* ==========================================================================
+         * 9. DASHBOARD LOGIC
+         * ========================================================================== */
+        function updateDashboardStats() {
+            if(!stockData) return;
+            const itemsWithStock = stockData.filter(i => i.Qty > 0);
+            const totalItems = itemsWithStock.length;
+            const totalQty = itemsWithStock.reduce((sum, item) => sum + (Number(item.Qty) || 0), 0);
+            const usedBays = new Set(itemsWithStock.map(i => String(i.AisleBay).trim())).size;
+            
+            if(document.getElementById('statTotalItems')) document.getElementById('statTotalItems').textContent = totalItems.toLocaleString();
+            if(document.getElementById('statTotalQty')) document.getElementById('statTotalQty').textContent = totalQty.toLocaleString();
+            if(document.getElementById('statUsedBays')) document.getElementById('statUsedBays').textContent = usedBays.toLocaleString();
+        }
+
+        async function checkOnlineUsers() {
+            document.getElementById('onlineUsersModal').classList.add('modal-active');
+            document.getElementById('ouLoader').classList.remove('hidden'); 
+            document.getElementById('onlineUsersList').classList.add('hidden');
+            
+            try {
+                const { data } = await supabaseClient.from('ActiveUsers').select('*');
+                document.getElementById('ouLoader').classList.add('hidden'); 
+                document.getElementById('onlineUsersList').classList.remove('hidden');
+                
+                if(data && data.length > 0) {
+                    const now = new Date().getTime();
+                    document.getElementById('onlineUsersList').innerHTML = data.sort((a,b)=> {
+                        const timeA = new Date(a.LastSeen || a.lastseen || a.last_seen).getTime();
+                        const timeB = new Date(b.LastSeen || b.lastseen || b.last_seen).getTime();
+                        return timeB - timeA;
+                    }).map(u => {
+                        const lastSeen = u.LastSeen || u.lastseen || u.last_seen;
+                        const user = u.User || u.user || 'Unknown';
+                        const diff = Math.floor((now - new Date(lastSeen).getTime()) / 60000);
+                        const clr = diff > 15 ? 'bg-slate-400' : (diff > 5 ? 'bg-amber-500' : 'bg-emerald-500');
+                        
+                        return `
+                            <div class="bg-white dark:bg-slate-800 p-3 rounded-xl border dark:border-slate-700 flex justify-between items-center mb-2">
+                                <div class="flex gap-3 items-center">
+                                    <div class="w-8 h-8 rounded-full bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center relative">
+                                        <i class="fas fa-user text-indigo-400"></i>
+                                        <div class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-slate-800 ${clr}"></div>
+                                    </div>
+                                    <div>
+                                        <div class="font-bold text-sm dark:text-white">${user}</div>
+                                    </div>
+                                </div>
+                                <div class="text-[10px] text-right dark:text-slate-400">ล่าสุด<br>
+                                    <b class="dark:text-white">${new Date(lastSeen).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})}</b>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    document.getElementById('onlineUsersList').innerHTML = '<div class="text-center text-sm py-4 dark:text-slate-400">ไม่มีข้อมูล</div>';
+                }
+            } catch(e) {}
+        }
+
+        function closeOnlineUsersModal() { 
+            document.getElementById('onlineUsersModal').classList.remove('modal-active'); 
+        }
+
+
+        /* ==========================================================================
+         * 10. SCANNER LOGIC (HTML5 QR CODE)
+         * ========================================================================== */
+        function startScanner(eid) {
+            ;['scannerAddContainer', 'qaScannerContainer', 'scannerMasterContainer', 'scannerTransferContainer'].forEach(c => { 
+                const el = document.getElementById(c); 
+                if(el) el.classList.add('hidden'); 
+            });
+            
+            const c = eid === 'qaReader' ? 'qaScannerContainer' : (eid === 'readerMaster' ? 'scannerMasterContainer' : (eid === 'readerTransfer' ? 'scannerTransferContainer' : 'scannerAddContainer'));
+            document.getElementById(c).classList.remove('hidden');
+            
+            if(html5Scanner) {
+                stopScanner().then(() => initScanner(eid)); 
+            } else {
+                initScanner(eid);
+            }
+        }
+
+        function initScanner(eid) {
+            html5Scanner = new Html5Qrcode(eid);
+            html5Scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (txt) => {
+                playScanSuccess(); 
+                stopScanner();
+                
+                if (eid === 'readerAdd') { 
+                    document.getElementById('addBarcode').value = txt; 
+                    lookupProduct(txt); 
+                } 
+                else if (eid === 'qaReader') { 
+                    document.getElementById('qaInput').value = txt; 
+                    lookupQuickAdd(txt); 
+                } 
+                else if (eid === 'readerMaster') { 
+                    document.getElementById('masterBarcode').value = txt; 
+                }
+                else if (eid === 'readerTransfer') { 
+                    document.getElementById('transferBarcode').value = txt; 
+                    lookupForTransfer(txt); 
+                }
+            }, undefined).catch(() => showToast("เปิดกล้องไม่ได้", true));
+        }
+
+        function stopScanner() {
+            return new Promise((resolve) => {
+                ;['scannerAddContainer', 'qaScannerContainer', 'scannerMasterContainer', 'scannerTransferContainer'].forEach(c => { 
+                    const el = document.getElementById(c); 
+                    if(el) el.classList.add('hidden'); 
+                });
+                
+                if(html5Scanner) { 
+                    html5Scanner.stop().then(() => { 
+                        html5Scanner.clear(); 
+                        html5Scanner = null; 
+                        resolve(); 
+                    }).catch(()=>resolve()); 
+                } else {
+                    resolve();
+                }
+            });
+        }
+
+
+        /* ==========================================================================
+         * 11. INBOUND / ADD LOGIC (รับเข้า)
+         * ========================================================================== */
+        function openMasterSyncModal(force = true) {
+            document.getElementById('msProgressBar').style.width = '0%';
+            document.getElementById('msProgressText').textContent = '0%';
+            document.getElementById('msStatusText').textContent = force ? 'กำลังดาวน์โหลดข้อมูลอัตโนมัติ...' : 'กดเริ่มดาวน์โหลดเพื่ออัปเดต';
+            document.getElementById('btnStartMasterSync').style.display = force ? 'none' : 'block';
+            document.getElementById('btnCancelMasterSync').style.display = force ? 'none' : 'block';
+            document.getElementById('masterSyncModal').classList.add('modal-active');
+            setTimeout(() => {
+                document.getElementById('msBox').classList.add('modal-box-active');
+                // หากบังคับโหลด ให้เริ่มทำงาน Auto ทันทีโดยไม่ต้องรอให้กด
+                if (force) setTimeout(downloadMasterData, 300);
+            }, 100);
+        }
+
+        function closeMasterSyncModal() {
+            document.getElementById('msBox').classList.remove('modal-box-active');
+            setTimeout(() => document.getElementById('masterSyncModal').classList.remove('modal-active'), 300);
+        }
+
+        function openInventorySyncModal(force = true) {
+            document.getElementById('isProgressBar').style.width = '0%';
+            document.getElementById('isStatusText').textContent = force ? 'กำลังดาวน์โหลดสต๊อกอัตโนมัติ...' : 'กดเพื่ออัปเดตสต๊อก';
+            document.getElementById('btnStartInventorySync').style.display = force ? 'none' : 'block';
+            document.getElementById('btnCancelInventorySync').style.display = force ? 'none' : 'block';
+            document.getElementById('inventorySyncModal').classList.add('modal-active');
+            setTimeout(() => {
+                document.getElementById('isBox').classList.add('modal-box-active');
+                // หากบังคับโหลด ให้เริ่มทำงาน Auto ทันทีโดยไม่ต้องรอให้กด
+                if (force) setTimeout(downloadInventoryData, 300);
+            }, 100);
+        }
+
+        function closeInventorySyncModal() {
+            document.getElementById('isBox').classList.remove('modal-box-active');
+            setTimeout(() => document.getElementById('inventorySyncModal').classList.remove('modal-active'), 300);
+        }
+
+        async function lookupProduct(val) {
+            const q = String(val).trim(); 
+            if(!q) return;
+            
+            let p = await fetchItemFromServer(q); 
+            if(p) {
+                currentScannedProduct = p;
+                document.getElementById('foundItemNo').textContent = "ITEM: " + p.ItemNo;
+                document.getElementById('foundDesc').textContent = p.Description;
+                document.getElementById('productEntryArea').classList.remove('hidden');
+                document.getElementById('addQty').focus();
+                
+                const aisle = document.getElementById('addAisleBay').value;
+                if(aisle.length === 7) {
+                    const existing = stockData.find(s => s.AisleBay === aisle && String(s.ItemNo).toLowerCase() === String(p.ItemNo).toLowerCase());
+                    if(existing) {
+                        await showAwesomeDialog({ title: "พบรายการซ้ำ!", text: "สินค้านี้มีอยู่ใน Bay นี้แล้ว", icon: "warning", type: "alert" });
+                        jumpToEdit(existing);
+                    }
+                }
+                stopScanner();
+            } else { 
+                stopScanner();
+                const wantNew = await showAwesomeDialog({ title: "ไม่พบสินค้า!", text: "ยังไม่มีในระบบ Master ลงทะเบียนใหม่ไหม?", icon: "question" });
+                if (wantNew) { 
+                    navigateTo('master'); 
+                    document.getElementById('masterItemNo').value = q; 
+                    document.getElementById('masterBarcode').value = q; 
+                }
+            }
+        }
+
+        async function addPendingItem() {
+            const a = document.getElementById('addAisleBay').value; 
+            const q = parseInt(document.getElementById('addQty').value);
+            
+            if(a.length < 7 || !q || q <= 0 || !currentScannedProduct) { 
+                showToast("ข้อมูลไม่ถูกต้อง", true); 
+                return; 
+            }
+            
+            const existing = stockData.find(s => String(s.AisleBay) === a && String(s.ItemNo) === currentScannedProduct.ItemNo);
+            if(existing) { 
+                await showAwesomeDialog({ title: "พบรายการซ้ำ!", text: "มีใน Bay แล้ว", icon: "warning", type: "alert" }); 
+                jumpToEdit(existing); 
+                return; 
+            }
+
+            const exPending = pendingItems.findIndex(p => p.AisleBay === a && p.ItemNo === currentScannedProduct.ItemNo);
+            if(exPending > -1) {
+                pendingItems[exPending].Qty += q;
+            } else {
+                pendingItems.unshift({ AisleBay: a, ItemNo: currentScannedProduct.ItemNo, Description: currentScannedProduct.Description, Qty: q });
+            }
+
+            document.getElementById('addBarcode').value = ''; 
+            document.getElementById('addQty').value = 1; 
+            document.getElementById('productEntryArea').classList.add('hidden'); 
+            currentScannedProduct = null;
+            
+            updatePendingUI(); 
+            saveLocalQueues(); 
+            showToast("เพิ่มเข้าคิวแล้ว");
+        }
+
+        function updatePendingUI() {
+            const list = document.getElementById('pendingList');
+            document.getElementById('pendingCount').textContent = pendingItems.length;
+            document.getElementById('btnSaveAll').disabled = pendingItems.length === 0;
+            
+            if(!pendingItems.length) { 
+                list.innerHTML = '<div class="text-center text-slate-400 py-8 text-xs">ยังไม่มีรายการ</div>'; 
+                return; 
+            }
+            
+            list.innerHTML = pendingItems.map((i, idx) => `
+                <div class="bg-indigo-50 dark:bg-indigo-900/30 p-3 rounded-xl border dark:border-indigo-800 flex justify-between items-center text-[10px] font-bold mb-2">
+                    <div>
+                        <span class="text-primary dark:text-indigo-400">${i.AisleBay}</span> - <span>${i.ItemNo}</span><br>
+                        <span class="opacity-70 dark:text-slate-300">${i.Description}</span>
+                    </div>
+                    <div class="flex gap-1">
+                        <button onclick="editPending(${idx})" class="w-7 h-7 bg-indigo-100 dark:bg-indigo-700 text-primary dark:text-indigo-200 rounded"><i class="fas fa-edit"></i></button>
+                        <button onclick="deletePending(${idx})" class="w-7 h-7 bg-red-100 dark:bg-red-900/50 text-red-500 dark:text-red-400 rounded"><i class="fas fa-trash"></i></button>
+                        <span class="text-sm ml-1 dark:text-white">x${i.Qty}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function editPending(idx) {
+            const res = await showAwesomeDialog({ title: "แก้ไขจำนวน", text: "ระบุจำนวน:", icon: "edit", type: "prompt", defaultValue: pendingItems[idx].Qty });
+            if(res && parseInt(res) > 0) { 
+                pendingItems[idx].Qty = parseInt(res); 
+                updatePendingUI(); 
+                saveLocalQueues(); 
+            }
+        }
+
+        async function deletePending(idx) {
+            const confirmed = await showAwesomeDialog({ title: "ลบ", text: "ลบรายการนี้?", icon: "danger" });
+            if(confirmed) { 
+                pendingItems.splice(idx, 1); 
+                updatePendingUI(); 
+                saveLocalQueues(); 
+            }
+        }
+
+        async function submitToSheets() {
+            if(!pendingItems.length) return;
+            const itemsToSubmit = [...pendingItems];
+            pendingItems = []; 
+            updatePendingUI(); 
+            saveLocalQueues(); 
+            
+            document.getElementById('addAisleBay').value = ''; 
+            document.getElementById('productEntryArea').classList.add('hidden');
+            
+            itemsToSubmit.forEach(p => {
+                const ex = stockData.find(s => s.AisleBay === p.AisleBay && s.ItemNo === p.ItemNo);
+                if(ex) { 
+                    ex.Qty += p.Qty; 
+                    ex.LastUser = myUserName; 
+                } else { 
+                    stockData.push({ ID: 'inv_'+Date.now()+Math.floor(Math.random()*1000), AisleBay: p.AisleBay, ItemNo: p.ItemNo, Description: p.Description, Qty: p.Qty, LastUser: myUserName }); 
+                }
+                logTransaction('Add', p.ItemNo, p.AisleBay, p.Qty, 'Inbound Queue');
+            });
+            
+            updateDashboardStats(); 
+            showToast("ซิงค์เบื้องหลัง...");
+
+            const dbItems = itemsToSubmit.map(p => ({
+                ID: 'inv_' + Date.now() + Math.floor(Math.random()*10000), 
+                AisleBay: p.AisleBay, 
+                ItemNo: p.ItemNo, 
+                Description: p.Description, 
+                Qty: Number(p.Qty), 
+                LastUser: myUserName, 
+                Date: new Date().toLocaleString('th-TH')
+            }));
+
+            // ปรับไปใช้ wrapper กันเน็ตหลุด
+            safeSupabaseInsert('Inventory', dbItems).then(() => {
+                if(navigator.onLine) syncDataFromSheets(true);
+            }).catch((error) => showToast(error.message, true));
+        }
+
+        // QUICK ADD MODAL LOGIC
+        function openQuickAddModal(aisle) {
+            qaCurrentAisle = aisle; 
+            document.getElementById('qaTargetAisle').textContent = aisle;
+            document.getElementById('qaInput').value = ''; 
+            document.getElementById('qaProductInfo').classList.add('hidden');
+            
+            loadLocalQueues(); 
+            document.getElementById('quickAddModal').classList.add('modal-active'); 
+            setTimeout(() => { 
+                document.getElementById('qaBox').classList.add('modal-box-active'); 
+                document.getElementById('qaInput').focus(); 
+            }, 100);
+        }
+
+        function closeQuickAddModal() { 
+            stopScanner(); 
+            document.getElementById('qaBox').classList.remove('modal-box-active');
+            setTimeout(() => document.getElementById('quickAddModal').classList.remove('modal-active'), 300);
+        }
+
+        async function lookupQuickAdd(query) {
+            const q = String(query).trim(); 
+            if(!q) return;
+            
+            let p = await fetchItemFromServer(q); 
+            if(p) {
+                const existing = stockData.find(s => s.AisleBay === qaCurrentAisle && String(s.ItemNo).toLowerCase() === String(p.ItemNo).toLowerCase());
+                if(existing) { 
+                    closeQuickAddModal(); 
+                    await showAwesomeDialog({ title: "พบรายการนี้แล้ว", text: "ไปหน้าแก้ไข", type: "alert" }); 
+                    jumpToEdit(existing); 
+                    return; 
+                }
+                
+                currentScannedProduct = p; 
+                document.getElementById('qaItemNo').textContent = p.ItemNo; 
+                document.getElementById('qaDesc').textContent = p.Description; 
+                document.getElementById('qaQty').value = 1; 
+                document.getElementById('qaProductInfo').classList.remove('hidden'); 
+                document.getElementById('qaQty').focus();
+            } else {
+                const wantNew = await showAwesomeDialog({ title: "ไม่พบสินค้า", text: "ลงทะเบียนใหม่ไหม?", icon: "question" });
+                if (wantNew) { 
+                    closeQuickAddModal(); 
+                    navigateTo('master'); 
+                    document.getElementById('masterItemNo').value = q; 
+                }
+            }
+        }
+
+        function addQaItemToPending() {
+            const q = parseInt(document.getElementById('qaQty').value); 
+            if(q <= 0 || !currentScannedProduct) return;
+            
+            const exIdx = qaPendingItems.findIndex(i => i.ItemNo === currentScannedProduct.ItemNo && i.AisleBay === qaCurrentAisle);
+            if (exIdx > -1) {
+                qaPendingItems[exIdx].Qty += q; 
+            } else {
+                qaPendingItems.unshift({ AisleBay: qaCurrentAisle, ItemNo: currentScannedProduct.ItemNo, Description: currentScannedProduct.Description, Qty: q });
+            }
+            
+            document.getElementById('qaInput').value = ''; 
+            document.getElementById('qaProductInfo').classList.add('hidden'); 
+            currentScannedProduct = null;
+            
+            updateQaPendingUI(); 
+            saveLocalQueues(); 
+            document.getElementById('qaInput').focus();
+        }
+
+        function updateQaPendingUI() {
+            const list = document.getElementById('qaPendingList');
+            const items = qaPendingItems.filter(i => i.AisleBay === qaCurrentAisle);
+            
+            document.getElementById('qaPendingCount').textContent = `${items.length} รายการ`; 
+            document.getElementById('btnSubmitQa').disabled = items.length === 0;
+            
+            if(!items.length) { 
+                list.innerHTML = '<div class="text-center text-xs py-4">ว่าง</div>'; 
+                return; 
+            }
+            
+            list.innerHTML = items.map((i) => {
+                const realIdx = qaPendingItems.findIndex(qa => qa.ItemNo === i.ItemNo && qa.AisleBay === i.AisleBay);
+                return `
+                    <div class="bg-white dark:bg-slate-800 p-2 rounded-lg flex justify-between items-center border dark:border-slate-700 mb-2">
+                        <div class="w-2/3">
+                            <div class="text-[10px] font-bold text-primary dark:text-indigo-400">${i.ItemNo}</div>
+                            <div class="text-xs truncate dark:text-white">${i.Description}</div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm font-bold bg-primary text-white px-2 rounded">x${i.Qty}</span>
+                            <button onclick="removeQaPendingItem(${realIdx})" class="text-red-500"><i class="fas fa-times"></i></button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function removeQaPendingItem(idx) { 
+            qaPendingItems.splice(idx, 1); 
+            updateQaPendingUI(); 
+            saveLocalQueues(); 
+        }
+
+        async function submitQaPendingItems() {
+            const items = qaPendingItems.filter(i => i.AisleBay === qaCurrentAisle); 
+            if(!items.length) return; 
+            
+            qaPendingItems = qaPendingItems.filter(i => i.AisleBay !== qaCurrentAisle); 
+            saveLocalQueues(); 
+            closeQuickAddModal();
+            
+            items.forEach(p => { 
+                stockData.push({ ID: 'inv_'+Date.now()+Math.floor(Math.random()*1000), AisleBay: p.AisleBay, ItemNo: p.ItemNo, Description: p.Description, Qty: p.Qty, LastUser: myUserName }); 
+                logTransaction('Add', p.ItemNo, p.AisleBay, p.Qty, 'Quick Add');
+            });
+            
+            updateDashboardStats(); 
+            renderEmptyBays(document.getElementById('emptyBaySearch').value); 
+            showToast("ซิงค์...");
+            
+            const dbItems = items.map(p => ({ 
+                ID: 'inv_' + Date.now() + Math.floor(Math.random()*10000), 
+                AisleBay: p.AisleBay, 
+                ItemNo: p.ItemNo, 
+                Description: p.Description, 
+                Qty: Number(p.Qty), 
+                LastUser: myUserName, 
+                Date: new Date().toLocaleString('th-TH') 
+            }));
+            
+            // ปรับไปใช้ wrapper กันเน็ตหลุด
+            safeSupabaseInsert('Inventory', dbItems).then(() => {
+                if(navigator.onLine) syncDataFromSheets(true);
+            }).catch((error) => showToast(error.message, true));
+        }
+
+
+        /* ==========================================================================
+         * 12. SEARCH & EDIT LOGIC (ค้นหา/จัดการ)
+         * ========================================================================== */
+        function renderSearchList(query = '') {
+            const qTokens = query.toLowerCase().trim().split(/\s+/); 
+            currentPage = 1;
+            
+            const filtered = qTokens[0] ? stockData.filter(i => qTokens.every(t => `${i.AisleBay} ${i.ItemNo} ${i.Description}`.toLowerCase().includes(t))) : stockData;
+            const groups = filtered.reduce((acc, i) => { 
+                (acc[i.AisleBay] = acc[i.AisleBay] || []).push(i); 
+                return acc; 
+            }, {});
+            
+            filteredGroups = Object.keys(groups).sort().map(k => ({ aisle: k, items: groups[k] }));
+            document.getElementById('stockListContainer').innerHTML = filteredGroups.length ? '' : '<div class="text-center py-10">ไม่พบ</div>';
+            
+            if(filteredGroups.length) loadMoreItems();
+        }
+
+        function loadMoreItems() {
+            const chunk = filteredGroups.slice((currentPage-1)*itemsPerPage, currentPage*itemsPerPage);
+            document.getElementById('loadMoreTrigger').classList.toggle('hidden', chunk.length === 0);
+            
+            if(!chunk.length) return;
+            const frag = document.createDocumentFragment();
+            
+            chunk.forEach(g => {
+                const d = document.createElement('div'); 
+                d.className = "mb-4 animate-fade-in-up";
+                const safeAisle = String(g.aisle).replace(/'/g, "\\'");
+                
+                const htmlItems = g.items.map(i => {
+                    return `
+                        <div id="card-${i.ID}" class="bg-white dark:bg-slate-800 p-4 rounded-xl border dark:border-slate-700 mb-2 shadow-sm">
+                            <div class="view-mode flex justify-between">
+                                <div class="max-w-[70%]">
+                                    <div class="text-xs text-indigo-500 dark:text-indigo-400 font-bold tracking-wider">${i.ItemNo}</div>
+                                    <div class="text-sm font-bold dark:text-white leading-tight">${i.Description}</div>
+                                    <div class="text-[10px] text-slate-400 mt-1"><i class="fas fa-user mr-1"></i>${i.LastUser || '-'}</div>
+                                </div>
+                                <div class="flex gap-3 items-center">
+                                    <div class="text-xl font-bold dark:text-white">${i.Qty}</div>
+                                    <div class="flex flex-col gap-1.5 border-l dark:border-slate-700 pl-3">
+                                        <button onclick="toggleEdit('${i.ID}', true)"><i class="fas fa-pen text-slate-400 dark:text-slate-500"></i></button>
+                                        <button onclick="quickDeleteItem('${i.ID}')"><i class="fas fa-trash text-red-400 dark:text-red-500"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="edit-box-${i.ID}" class="hidden mt-3 pt-3 border-t dark:border-slate-700">
+                                <div class="grid grid-cols-2 gap-2 mb-3">
+                                    <input type="number" id="in-${i.ID}" placeholder="+ เข้า" oninput="calcTotal('${i.ID}', ${i.Qty})" class="border dark:border-slate-700 dark:bg-slate-900 p-2.5 rounded-lg text-center font-bold">
+                                    <input type="number" id="out-${i.ID}" placeholder="- ออก" oninput="calcTotal('${i.ID}', ${i.Qty})" class="border dark:border-slate-700 dark:bg-slate-900 p-2.5 rounded-lg text-center font-bold">
+                                </div>
+                                <div class="flex justify-between font-bold mb-3 text-sm dark:text-white">รวม: <span id="total-${i.ID}" class="text-primary dark:text-indigo-400">${i.Qty}</span></div>
+                                <div class="flex gap-2">
+                                    <button onclick="toggleEdit('${i.ID}', false)" class="flex-1 bg-slate-200 dark:bg-slate-700 py-2.5 rounded-lg text-sm font-bold dark:text-slate-200">ยกเลิก</button>
+                                    <button onclick="handleUpdate('${i.ID}')" class="flex-1 bg-primary text-white py-2.5 rounded-lg text-sm font-bold">เซฟ</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                d.innerHTML = `
+                    <div class="bg-indigo-600 text-white p-3 rounded-xl font-bold flex justify-between items-center mb-2 shadow-sm sticky top-[68px] z-30">
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-box text-indigo-200"></i>
+                            <span class="tracking-wider text-base drop-shadow-md">${g.aisle}</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-[10px] text-indigo-100 font-normal mr-1 bg-white/10 px-2 py-0.5 rounded-full">${g.items.length} รายการ</span>
+                            <button onclick="quickEditBay('${safeAisle}')" class="w-8 h-8 bg-indigo-500/50 hover:bg-indigo-400 rounded-lg flex items-center justify-center transition-colors" title="แก้ไขชื่อ Bay"><i class="fas fa-edit text-xs"></i></button>
+                            <button onclick="quickDeleteBay('${safeAisle}')" class="w-8 h-8 bg-rose-500/80 hover:bg-rose-500 rounded-lg flex items-center justify-center transition-colors" title="ลบ Bay"><i class="fas fa-trash text-xs"></i></button>
+                            <button onclick="openQuickAddModal('${safeAisle}')" class="w-8 h-8 bg-emerald-500/80 hover:bg-emerald-500 rounded-lg flex items-center justify-center transition-colors" title="เพิ่มด่วน"><i class="fas fa-plus text-xs"></i></button>
+                        </div>
+                    </div>
+                    ${htmlItems}
+                `;
+                frag.appendChild(d);
+            });
+            
+            document.getElementById('stockListContainer').appendChild(frag); 
+            currentPage++;
+        }
+
+        function toggleEdit(id, show) { 
+            const card = document.getElementById(`card-${id}`); 
+            if(!card) return; 
+            
+            card.querySelector('.view-mode').classList.toggle('hidden', show); 
+            card.querySelector(`#edit-box-${id}`).classList.toggle('hidden', !show); 
+            
+            if(show) { 
+                document.getElementById(`in-${id}`).value = ''; 
+                document.getElementById(`out-${id}`).value = ''; 
+                document.getElementById(`total-${id}`).textContent = stockData.find(s => s.ID == id)?.Qty || 0; 
+            } 
+        }
+
+        function calcTotal(id, cur) { 
+            const i = parseInt(document.getElementById(`in-${id}`).value) || 0;
+            const oEl = document.getElementById(`out-${id}`); 
+            let o = parseInt(oEl.value) || 0; 
+            
+            if(o > cur + i) { 
+                o = cur + i; 
+                oEl.value = o; 
+            } 
+            document.getElementById(`total-${id}`).textContent = cur + i - o; 
+        }
+
+        async function handleUpdate(id) {
+            const inV = parseInt(document.getElementById(`in-${id}`).value) || 0; 
+            const outV = parseInt(document.getElementById(`out-${id}`).value) || 0;
+            const delta = inV - outV;
+            
+            if (delta === 0) { 
+                toggleEdit(id, false); 
+                return; 
+            }
+
+            const idx = stockData.findIndex(s => s.ID == id); 
+            if(idx === -1) return;
+            
+            let nQ = stockData[idx].Qty + delta; 
+            if(nQ < 0) nQ = 0;
+            const item = stockData[idx];
+
+            if(nQ === 0) {
+                const ok = await showAwesomeDialog({ title: "เป็น 0", text: "ลบทิ้งเลยไหม?", icon: "warning" }); 
+                if(!ok) return;
+                
+                stockData.splice(idx, 1); 
+                renderSearchList(''); 
+                updateDashboardStats(); 
+                
+                logTransaction('Delete', item.ItemNo, item.AisleBay, delta, `ปรับยอดเหลือ 0 (ลบออโต้)`);
+                safeSupabaseDelete('Inventory', 'ID', id).then(() => { if(navigator.onLine) syncDataFromSheets(true); });
+            } else { 
+                stockData[idx].Qty = nQ; 
+                renderSearchList(''); 
+                updateDashboardStats(); 
+                showToast("อัปเดตแล้ว");
+                
+                logTransaction('Update', item.ItemNo, item.AisleBay, delta, `ปรับยอด Manual`);
+                
+                safeSupabaseRpc('update_inventory_qty', { p_id: id, p_delta: delta, p_user: myUserName, p_date: new Date().toLocaleString('th-TH') })
+                .then(({error}) => {
+                    if(error) {
+                        safeSupabaseUpdate('Inventory', { Qty: Number(nQ), LastUser: myUserName, Date: new Date().toLocaleString('th-TH') }, 'ID', id)
+                        .then(() => { if(navigator.onLine) syncDataFromSheets(true); });
+                    } else {
+                        if(navigator.onLine) syncDataFromSheets(true);
+                    }
+                });
+            }
+        }
+
+
+        /* ==========================================================================
+         * 13. EMPTY BAYS LOGIC (เช็ค Bay ว่าง)
+         * ========================================================================== */
+        async function loadEmptyBays() {
+            navigateTo('empty-bays'); 
+            showLoader(true, "เช็ค Bay...");
+            
+            try {
+                const { data, error } = await fetchAllRows('MasterBays'); 
+                if (!error && data.length > 0) {
+                    masterBaysCache = data.map(d => getField(d, ['aislebay', 'aisle', 'bay', 'location'])).filter(Boolean);
+                }
+            } catch(e) {}
+            
+            showLoader(false); 
+            renderEmptyBays();
+        }
+
+        function renderEmptyBays(query = '') {
+            const usedBays = new Set(stockData.filter(i => i.Qty > 0).map(i => String(i.AisleBay).trim()));
+            let filteredBays = masterBaysCache.sort();
+            
+            if (query) {
+                filteredBays = filteredBays.filter(bay => bay.toLowerCase().includes(query.toLowerCase().trim()));
+            }
+            
+            const totalEmpty = filteredBays.filter(b => !usedBays.has(b)).length;
+            document.getElementById('emptyBaysCount').textContent = `ว่าง ${totalEmpty} / ${filteredBays.length} Bay`;
+            
+            const list = document.getElementById('emptyBaysList'); 
+            const sumList = document.getElementById('emptyBaysSummaryList');
+            
+            if(!filteredBays.length) { 
+                list.innerHTML = `<div class="py-10 text-center">ไม่พบ</div>`; 
+                sumList.innerHTML = ''; 
+                return; 
+            }
+
+            const groups = filteredBays.reduce((acc, bay) => { 
+                const p = bay.substring(0, 3).toUpperCase(); 
+                if(!acc[p]) acc[p] = []; 
+                acc[p].push(bay); 
+                return acc; 
+            }, {});
+            
+            let html = '', sumHtml = '';
+
+            for (const [p, bays] of Object.entries(groups)) {
+                const empty = bays.filter(b => !usedBays.has(b)).length;
+                const bg = empty === 0 ? 'bg-slate-100 opacity-60 text-slate-400 dark:bg-slate-800' : 'bg-blue-500 text-white cursor-pointer hover:bg-blue-600 transition-colors shadow-sm';
+                const click = empty === 0 ? '' : `onclick="document.getElementById('emptyBaySearch').value='${p}'; renderEmptyBays('${p}');"`;
+                
+                sumHtml += `
+                    <div ${click} class="rounded-xl border dark:border-slate-700 p-2 text-center ${bg}">
+                        <div class="font-bold">${p}</div>
+                        <div class="text-[10px]">ว่าง ${empty}/${bays.length}</div>
+                    </div>
+                `;
+                
+                html += `
+                    <div class="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-3 border dark:border-slate-700 mb-3">
+                        <div class="flex justify-between items-center mb-3">
+                            <div class="font-bold text-sm dark:text-white">Aisle ${p}</div>
+                            <div class="text-[10px] bg-white dark:bg-slate-700 border dark:border-slate-600 px-2 py-0.5 rounded-full text-slate-500 dark:text-slate-300 font-bold">ว่าง ${empty}/${bays.length} Bay</div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                `;
+                
+                html += bays.map(b => {
+                    const used = usedBays.has(b);
+                    const safeBay = String(b).replace(/'/g, "\\'");
+                    if (used) {
+                        return `
+                            <div onclick="jumpToSearch('${safeBay}')" class="bg-rose-50 border border-rose-200 dark:bg-rose-900/30 dark:border-rose-800 p-3 rounded-xl flex flex-col items-center cursor-pointer hover:scale-105 transition-transform">
+                                <span class="font-bold text-rose-700 dark:text-rose-400">${b}</span>
+                                <span class="text-[10px] bg-rose-500 text-white px-2 rounded-full mt-1">ไม่ว่าง</span>
+                            </div>
+                        `;
+                    } else {
+                        return `
+                            <div onclick="openQuickAddModal('${safeBay}')" class="bg-emerald-400 dark:bg-emerald-500 p-3 rounded-xl flex flex-col items-center cursor-pointer hover:scale-105 transition-transform shadow-md">
+                                <span class="font-bold text-white">${b}</span>
+                                <span class="text-[10px] bg-emerald-50 text-emerald-700 px-2 rounded-full mt-1">ว่าง</span>
+                            </div>
+                        `;
+                    }
+                }).join('');
+                
+                html += `</div></div>`;
+            }
+            list.innerHTML = html; 
+            sumList.innerHTML = sumHtml;
+        }
+
+        function jumpToSearch(bay) { 
+            navigateTo('search'); 
+            document.getElementById('searchInput').value = bay; 
+            renderSearchList(bay); 
+        }
+
+        function jumpToEdit(item) { 
+            jumpToSearch(item.AisleBay); 
+            setTimeout(() => { 
+                const c = document.getElementById(`card-${item.ID}`); 
+                if(c) { 
+                    c.scrollIntoView(); 
+                    toggleEdit(item.ID, true); 
+                } 
+            }, 500); 
+        }
+
+        async function quickEditBay(oldAisle) {
+            const newAisle = await showAwesomeDialog({ title: "แก้ไขชื่อ Bay", text: "ระบุใหม่:", type: "prompt", defaultValue: oldAisle });
+            if(!newAisle || newAisle === oldAisle) return;
+            
+            const clean = formatAisleStrict(newAisle);
+            stockData.filter(i => i.AisleBay === oldAisle).forEach(i => i.AisleBay = clean);
+            
+            renderSearchList(clean); 
+            showToast("เปลี่ยนชื่อแล้ว ซิงค์...");
+            logTransaction('Update', 'ALL', clean, 0, `เปลี่ยนชื่อ Bay จาก ${oldAisle}`);
+            
+            safeSupabaseUpdate('Inventory', { AisleBay: clean, LastUser: myUserName, Date: new Date().toLocaleString('th-TH') }, 'AisleBay', oldAisle)
+            .then(() => { if(navigator.onLine) syncDataFromSheets(true); });
+        }
+
+        async function quickDeleteBay(aisle) {
+            const ok = await showAwesomeDialog({ title: "ลบ Bay", text: "ลบทิ้งทั้งหมด?", icon: "danger" }); 
+            if(!ok) return;
+            
+            stockData = stockData.filter(i => i.AisleBay !== aisle); 
+            renderSearchList(''); 
+            updateDashboardStats(); 
+            showToast("ลบแล้ว ซิงค์...");
+            
+            logTransaction('Delete', 'ALL', aisle, 0, `ลบทั้ง Bay`);
+            safeSupabaseDelete('Inventory', 'AisleBay', aisle).then(() => { if(navigator.onLine) syncDataFromSheets(true); });
+        }
+
+        async function quickDeleteItem(id) {
+            const ok = await showAwesomeDialog({ title: "ลบรายการ", text: "ลบชิ้นนี้?", icon: "danger" }); 
+            if(!ok) return;
+            
+            const idx = stockData.findIndex(s => s.ID == id); 
+            if(idx > -1) {
+                const item = stockData[idx];
+                logTransaction('Delete', item.ItemNo, item.AisleBay, -item.Qty, `ลบรายการทิ้ง`);
+                stockData.splice(idx, 1);
+            }
+            
+            renderSearchList(''); 
+            updateDashboardStats(); 
+            showToast("ลบแล้ว");
+            
+            safeSupabaseDelete('Inventory', 'ID', id).then(() => { if(navigator.onLine) syncDataFromSheets(true); });
+        }
+
+
+        /* ==========================================================================
+         * 14. TRANSFER LOGIC (ย้ายข้าม Bay)
+         * ========================================================================== */
+        async function lookupForTransfer(val) {
+            const q = String(val).trim(); 
+            if(!q) return;
+            
+            let p = await fetchItemFromServer(q);
+            if(p) {
+                transferCurrentItem = p; 
+                document.getElementById('tfItemNo').textContent = p.ItemNo; 
+                document.getElementById('tfDesc').textContent = p.Description;
+                
+                transferSourceBays = stockData.filter(s => String(s.ItemNo).toLowerCase() === String(p.ItemNo).toLowerCase() && s.Qty > 0);
+                const src = document.getElementById('tfSourceBay'); 
+                src.innerHTML = '<option value="">-- ต้นทาง --</option>';
+                
+                if (transferSourceBays.length === 0) { 
+                    showToast("ไม่พบในสต๊อก", true); 
+                    return; 
+                }
+                
+                transferSourceBays.forEach(i => { 
+                    const opt = document.createElement('option'); 
+                    opt.value = i.ID; 
+                    opt.textContent = `${i.AisleBay} (มี: ${i.Qty})`; 
+                    src.appendChild(opt); 
+                });
+                
+                document.getElementById('transferItemArea').classList.remove('hidden'); 
+                stopScanner();
+            } else { 
+                showToast("ไม่พบรหัส", true); 
+                stopScanner(); 
+            }
+        }
+
+        function updateTransferMaxQty() {
+            const id = document.getElementById('tfSourceBay').value; 
+            const qty = document.getElementById('tfQty'); 
+            const lbl = document.getElementById('tfMaxQtyLabel');
+            
+            if (!lbl || !qty) return;
+            
+            if (!id) { 
+                qty.value = 1; 
+                lbl.textContent = '/ 0'; 
+                return; 
+            }
+            const item = transferSourceBays.find(s => s.ID == id);
+            if (item) { 
+                qty.value = 1; 
+                qty.max = item.Qty; 
+                lbl.textContent = `/ ${item.Qty}`; 
+            }
+        }
+
+        async function submitTransfer() {
+            const srcId = document.getElementById('tfSourceBay').value; 
+            const tarBay = document.getElementById('tfTargetBay').value; 
+            const qty = parseInt(document.getElementById('tfQty').value);
+            
+            if (!srcId || tarBay.length < 7 || !qty || qty <= 0) { 
+                showToast("ข้อมูลไม่ครบ", true); 
+                return; 
+            }
+            
+            const srcItem = transferSourceBays.find(s => s.ID == srcId); 
+            if (!srcItem) return;
+            
+            if (qty > srcItem.Qty) { 
+                showToast(`สูงสุด ${srcItem.Qty}`, true); 
+                return; 
+            }
+            if (srcItem.AisleBay === tarBay) { 
+                showToast("ซ้ำที่เดิม", true); 
+                return; 
+            }
+
+            const nQ = srcItem.Qty - qty; 
+            srcItem.Qty = nQ;
+            const destItem = stockData.find(s => s.AisleBay === tarBay && String(s.ItemNo).toLowerCase() === String(srcItem.ItemNo).toLowerCase());
+            let apiCalls = [];
+            
+            apiCalls.push(
+                safeSupabaseRpc('update_inventory_qty', { p_id: srcItem.ID, p_delta: -qty, p_user: myUserName, p_date: new Date().toLocaleString('th-TH') })
+                .then(({error}) => {
+                    if(error) {
+                        if (nQ === 0) safeSupabaseDelete('Inventory', 'ID', srcItem.ID).then();
+                        else safeSupabaseUpdate('Inventory', { Qty: Number(nQ), LastUser: myUserName, Date: new Date().toLocaleString('th-TH') }, 'ID', srcItem.ID).then();
+                    }
+                })
+            );
+
+            if(destItem) { 
+                destItem.Qty += qty; 
+                destItem.LastUser = myUserName;
+                apiCalls.push(
+                    safeSupabaseRpc('update_inventory_qty', { p_id: destItem.ID, p_delta: qty, p_user: myUserName, p_date: new Date().toLocaleString('th-TH') })
+                    .then(({error}) => {
+                        if(error) safeSupabaseUpdate('Inventory', { Qty: Number(destItem.Qty), LastUser: myUserName, Date: new Date().toLocaleString('th-TH') }, 'ID', destItem.ID).then();
+                    })
+                );
+            } else { 
+                const nid = 'inv_' + Date.now();
+                stockData.push({ ID: nid, AisleBay: tarBay, ItemNo: srcItem.ItemNo, Description: srcItem.Description, Qty: qty, LastUser: myUserName }); 
+                apiCalls.push(safeSupabaseInsert('Inventory', [{ ID: nid, AisleBay: tarBay, ItemNo: srcItem.ItemNo, Description: srcItem.Description, Qty: Number(qty), LastUser: myUserName, Date: new Date().toLocaleString('th-TH') }]));
+            }
+            
+            if(nQ === 0) { 
+                const idx = stockData.findIndex(s => s.ID == srcId); 
+                if(idx > -1) stockData.splice(idx, 1); 
+            }
+            
+            logTransaction('Transfer Out', srcItem.ItemNo, srcItem.AisleBay, -qty, `ไปยัง ${tarBay}`);
+            logTransaction('Transfer In', srcItem.ItemNo, tarBay, qty, `มาจาก ${srcItem.AisleBay}`);
+
+            updateDashboardStats(); 
+            showToast(`ย้ายสำเร็จ`);
+            document.getElementById('transferItemArea').classList.add('hidden');
+            
+            Promise.all(apiCalls).then(() => { if(navigator.onLine) syncDataFromSheets(true); }).catch(() => showToast("Error", true));
+        }
+
+
+        /* ==========================================================================
+         * 15. MASTER DATA LOGIC (เพิ่มฐานข้อมูล)
+         * ========================================================================== */
+        async function saveMasterData() {
+            const i = document.getElementById('masterItemNo').value.trim();
+            const b = document.getElementById('masterBarcode').value.trim();
+            const d = document.getElementById('masterDesc').value.trim();
+            
+            if(!i || !d) { 
+                showToast("ไม่ครบ", true); 
+                return; 
+            }
+            
+            document.getElementById('btnSaveMaster').disabled = true;
+            const payload = { ItemNo: i, Barcode: b, Description: d, LastUser: myUserName };
+            const { error } = await supabaseClient.from('MasterData').insert([payload]);
+            document.getElementById('btnSaveMaster').disabled = false;
+            
+            if(!error) { 
+                showToast("บันทึกสำเร็จ"); 
+                setMasterCache(i, payload); 
+            } else {
+                showToast("Error: " + error.message, true);
+            }
+        }
+
+
+        /* ==========================================================================
+         * 16. ADMIN LOGIC (อัปโหลด, โหลด, เคลียร์ข้อมูล)
+         * ========================================================================== */
+        async function loadHistoryView() {
+            navigateTo('history');
+            showLoader(true, "กำลังโหลดประวัติ...");
+            document.getElementById('historySearchInput').value = '';
+            try {
+                const { data, error } = await supabaseClient.from('TransactionLogs').select('*').order('id', {ascending: false}).limit(100);
+                if (data) {
+                    globalHistoryData = data;
+                    renderHistoryList('');
+                }
+            } catch(e) {
+                showToast("ไม่สามารถโหลดประวัติได้", true);
+            }
+            showLoader(false);
+        }
+
+        function renderHistoryList(query) {
+            const list = document.getElementById('historyListContainer');
+            let filtered = globalHistoryData;
+            
+            if (query) {
+                const q = query.toLowerCase();
+                filtered = globalHistoryData.filter(h => 
+                    (h.ItemNo && h.ItemNo.toLowerCase().includes(q)) || 
+                    (h.AisleBay && h.AisleBay.toLowerCase().includes(q)) ||
+                    (h.User && h.User.toLowerCase().includes(q))
+                );
+            }
+
+            if(filtered.length === 0) {
+                list.innerHTML = '<div class="text-center py-10 text-slate-400">ไม่มีข้อมูล หรือไม่พบคำค้นหา</div>';
+                return;
+            }
+
+            list.innerHTML = filtered.map(h => {
+                let badgeClr = 'bg-slate-100 text-slate-600';
+                let icon = 'fa-info-circle';
+                if(h.Action === 'Add') { badgeClr = 'bg-emerald-100 text-emerald-700'; icon = 'fa-arrow-down'; }
+                else if(h.Action === 'Update') { badgeClr = 'bg-blue-100 text-blue-700'; icon = 'fa-pen'; }
+                else if(h.Action === 'Delete' || h.Action === 'Clear') { badgeClr = 'bg-red-100 text-red-700'; icon = 'fa-trash'; }
+                else if(h.Action.includes('Transfer')) { badgeClr = 'bg-purple-100 text-purple-700'; icon = 'fa-exchange-alt'; }
+                else if(h.Action === 'Upload') { badgeClr = 'bg-teal-100 text-teal-700'; icon = 'fa-upload'; }
+
+                let dateFormatted = h.Date ? h.Date.substring(0, 16) : '-';
+
+                return `
+                    <div class="bg-white dark:bg-slate-800 p-3 rounded-xl border dark:border-slate-700 flex justify-between items-center shadow-sm">
+                        <div class="flex gap-3 items-center">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${badgeClr}">
+                                <i class="fas ${icon}"></i>
+                            </div>
+                            <div>
+                                <div class="font-bold text-sm dark:text-white flex items-center gap-1.5">
+                                    ${h.ItemNo} 
+                                    <span class="text-[10px] bg-slate-100 dark:bg-slate-700 px-1.5 rounded">${h.AisleBay}</span>
+                                </div>
+                                <div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate max-w-[150px]">${h.Remark || '-'}</div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-black text-sm ${Number(h.QtyChange) > 0 ? 'text-emerald-500' : (Number(h.QtyChange) < 0 ? 'text-red-500' : 'text-slate-500')}">
+                                ${Number(h.QtyChange) > 0 ? '+' : ''}${h.QtyChange}
+                            </div>
+                            <div class="text-[9px] text-slate-400 mt-1">${h.User}<br>${dateFormatted}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function exportHistoryCSV() {
+            if(!globalHistoryData || globalHistoryData.length === 0) {
+                showToast("ไม่มีข้อมูลประวัติให้ดาวน์โหลด", true); return;
+            }
+            let csv = "\uFEFFID,Date,User,Action,ItemNo,AisleBay,QtyChange,Remark\n" + 
+                globalHistoryData.map(r => `${r.id},${r.Date},"${r.User}","${r.Action}",${r.ItemNo},${r.AisleBay},${r.QtyChange},"${r.Remark || ''}"`).join("\n");
+            const a = document.createElement("a"); 
+            a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); 
+            a.download = `HistoryLog_${Date.now()}.csv`; 
+            a.click();
+        }
+
+        async function handleClearData() {
+            const ok = await showAwesomeDialog({ title: "ล้างทั้งหมด", text: "แน่ใจ?", icon: "danger" }); 
+            if(!ok) return;
+            
+            exportToCSV(); 
+            stockData = []; 
+            renderSearchList(); 
+            updateDashboardStats();
+            
+            logTransaction('Clear', 'ALL', 'ALL', 0, `ล้างสต๊อกทั้งหมด`);
+            
+            supabaseClient.from('Inventory').delete().neq('ID', '0').then(({ error }) => {
+                if (error) showToast("ล้างข้อมูลไม่สำเร็จ: " + error.message, true);
+                else {
+                    showToast("ล้างข้อมูลทั้งหมดสำเร็จเรียบร้อยแล้ว!");
+                    syncDataFromSheets(true);
+                }
+            });
+        }
+
+        function exportToCSV() {
+            if(!stockData.length) return;
+            let csv = "\uFEFFID,Date,AisleBay,ItemNo,Description,Qty,LastUser\n" + stockData.map(r => `${r.ID},${r.Date},${r.AisleBay},${r.ItemNo},"${r.Description.replace(/"/g,'""')}",${r.Qty},${r.LastUser}`).join("\n");
+            const a = document.createElement("a"); 
+            a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); 
+            a.download = `Export_${Date.now()}.csv`; 
+            a.click();
+        }
+
+        function downloadTemplate() {
+            const csv = "\uFEFFItemNo,AisleBay,Qty\nITEM-001,A01-001,50\nITEM-002,A01-002,100";
+            const a = document.createElement("a"); 
+            a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); 
+            a.download = "Template_Upload_Stock.csv"; 
+            a.click();
+        }
+
+        function triggerFileUpload() { 
+            document.getElementById('fileInput').click(); 
+        }
+
+        async function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if(!file) return;
+            
+            showLoader(true, "กำลังอ่านไฟล์...");
+            const reader = new FileReader();
+            
+            reader.onload = async function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    // ใช้ SheetJS (XLSX) เพื่ออ่านข้อมูล สามารถอ่านได้ทั้ง .csv และ .xlsx
+                    const workbook = XLSX.read(data, {type: 'array'});
+                    
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    
+                    // แปลงข้อมูลใน Sheet เป็น JSON Array
+                    const rows = XLSX.utils.sheet_to_json(worksheet, {raw: false});
+                    
+                    if(rows.length === 0) { 
+                        showToast("ไฟล์ว่างเปล่า หรือรูปแบบข้อมูลไม่ถูกต้อง", true); 
+                        showLoader(false); 
+                        return; 
+                    }
+                    
+                    // ค้นหาคีย์หัวคอลัมน์ (รองรับการตั้งชื่อหัวคอลัมน์หลายแบบ)
+                    const firstRowKeys = Object.keys(rows[0]);
+                    const itemKey = firstRowKeys.find(k => ['itemno', 'item', 'itemnumber', 'รหัสสินค้า'].includes(k.toLowerCase().trim().replace(/[\s_]/g, '')));
+                    const bayKey = firstRowKeys.find(k => ['aislebay', 'aisle', 'bay', 'location'].includes(k.toLowerCase().trim().replace(/[\s_]/g, '')));
+                    const qtyKey = firstRowKeys.find(k => ['qty', 'quantity', 'จำนวน'].includes(k.toLowerCase().trim().replace(/[\s_]/g, '')));
+
+                    if (!itemKey || !bayKey || !qtyKey) {
+                        showToast("หัวคอลัมน์ผิด (ต้องมี ItemNo, AisleBay, Qty)", true);
+                        showLoader(false); 
+                        return;
+                    }
+
+                    let payload = [];
+                    for(let i=0; i<rows.length; i++) {
+                        const row = rows[i];
+                        const itemNo = String(row[itemKey] || '').trim();
+                        const bayRaw = String(row[bayKey] || '').trim();
+                        const bay = formatAisleStrict(bayRaw);
+                        const qtyStr = String(row[qtyKey] || '').replace(/,/g, ''); // ตัดลูกน้ำออกถ้ามี
+                        const qty = parseInt(qtyStr);
+                        
+                        if (itemNo && bay && !isNaN(qty) && qty > 0) {
+                            payload.push({ AisleBay: bay, ItemNo: itemNo, Qty: qty });
+                        }
+                    }
+                    
+                    if (payload.length === 0) {
+                        showToast("ไม่พบข้อมูลที่ถูกต้องในไฟล์ หรือจำนวนเป็น 0", true);
+                        showLoader(false); 
+                        return;
+                    }
+
+                    showLoader(true, `อัปโหลด ${payload.length} รายการ...`);
+                    await processBulkUpload(payload);
+                } catch (err) {
+                    console.error(err);
+                    showToast("เกิดข้อผิดพลาดในการอ่านไฟล์", true);
+                    showLoader(false);
+                } finally {
+                    // รีเซ็ตค่า input เพื่อให้อัปโหลดไฟล์เดิมซ้ำได้ในกรณีที่แก้ไฟล์แล้ว
+                    document.getElementById('fileInput').value = '';
+                }
+            };
+            
+            // ใช้ readAsArrayBuffer เพื่อให้รองรับไฟล์ Binary (Excel)
+            reader.readAsArrayBuffer(file);
+        }
+
+        async function processBulkUpload(items) {
+            let logPayload = [];
+            let dbInserts = [];
+            
+            for (const item of items) {
+                const existingIdx = stockData.findIndex(s => s.AisleBay === item.AisleBay && String(s.ItemNo).toLowerCase() === String(item.ItemNo).toLowerCase());
+                
+                let desc = "CSV Upload";
+                const master = await fetchItemFromServer(item.ItemNo);
+                if (master && master.Description) desc = master.Description;
+
+                if (existingIdx > -1) {
+                    const ex = stockData[existingIdx];
+                    ex.Qty += item.Qty; 
+                    ex.LastUser = myUserName;
+                    
+                    supabaseClient.rpc('update_inventory_qty', { p_id: ex.ID, p_delta: item.Qty, p_user: myUserName, p_date: new Date().toLocaleString('th-TH') })
+                    .then(({error}) => { 
+                        if(error) supabaseClient.from('Inventory').update({ Qty: ex.Qty, LastUser: myUserName, Date: new Date().toLocaleString('th-TH') }).eq('ID', ex.ID).then(); 
+                    });
+                } else {
+                    const newId = 'inv_' + Date.now() + Math.floor(Math.random()*10000);
+                    stockData.push({ ID: newId, AisleBay: item.AisleBay, ItemNo: item.ItemNo, Description: desc, Qty: item.Qty, LastUser: myUserName });
+                    dbInserts.push({ ID: newId, AisleBay: item.AisleBay, ItemNo: item.ItemNo, Description: desc, Qty: item.Qty, LastUser: myUserName, Date: new Date().toLocaleString('th-TH') });
+                }
+                
+                logPayload.push({ Date: new Date().toLocaleString('th-TH'), User: myUserName || 'System', Action: 'Upload', ItemNo: item.ItemNo, AisleBay: item.AisleBay, QtyChange: item.Qty, Remark: 'CSV Bulk Upload' });
+            }
+            
+            if(dbInserts.length > 0) await supabaseClient.from('Inventory').insert(dbInserts);
+            if(logPayload.length > 0) await supabaseClient.from('TransactionLogs').insert(logPayload);
+            
+            updateDashboardStats();
+            if(document.getElementById('view-search').classList.contains('active')) {
+                renderSearchList(document.getElementById('searchInput').value);
+            }
+            
+            showLoader(false);
+            showToast(`อัปโหลดสำเร็จ ${items.length} รายการ!`);
+            syncDataFromSheets(true);
+        }
+
+        function openGoogleSheetDB() { 
+            window.open('https://supabase.com/dashboard/project/cjagcytcjfpgoaoxsgav/editor', '_blank'); 
+        }
+
+
+        /* ==========================================================================
+         * 17. PRINT LOGIC (พิมพ์รายงาน)
+         * ========================================================================== */
+        function openPrintSelector() { 
+            renderPrintAisles(); 
+            document.getElementById('printSelectorModal').classList.add('modal-active'); 
+        }
+        
+        function closePrintSelectorModal() { 
+            document.getElementById('printSelectorModal').classList.remove('modal-active'); 
+        }
+        
+        function renderPrintAisles(q = '') {
+            const list = document.getElementById('printAisleList');
+            const a = [...new Set(stockData.map(i => i.AisleBay))].sort();
+            const f = q ? a.filter(x => x.toLowerCase().includes(q.toLowerCase())) : a;
+            
+            list.innerHTML = f.map(x => `
+                <div class="bg-white border p-3 rounded-xl flex justify-between items-center mb-2 font-bold text-sm">
+                    <span class="text-indigo-600">${x}</span>
+                    <div class="flex gap-2">
+                        <button onclick="doPrintQR('${x}')" class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors text-xs border border-slate-300">
+                            <i class="fas fa-qrcode"></i> <span class="hidden sm:inline">QR</span>
+                        </button>
+                        <button onclick="doPrint('${x}')" class="bg-indigo-100 hover:bg-indigo-200 text-primary px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors text-xs border border-indigo-300">
+                            <i class="fas fa-print"></i> <span class="hidden sm:inline">สต๊อก</span>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterPrint(val) { renderPrintAisles(val); }
+
+        function doPrintQR(bay) {
+            let p = document.getElementById('printArea');
+            if(!p) { 
+                p = document.createElement('div'); 
+                p.id = 'printArea'; 
+                document.body.appendChild(p); 
+            }
+            
+            p.innerHTML = `
+                <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; font-family:sans-serif; text-align:center;">
+                    <div style="font-size: 24px; font-weight: bold; margin-bottom: 5px; color: #64748b;">ST20 Location Tag</div>
+                    <div style="font-size: 80px; font-weight: 900; margin-bottom: 40px; color: #0f172a; letter-spacing: 2px;">${bay}</div>
+                    <div id="qrCodeContainer" style="padding: 20px; background: white; border: 4px solid #e2e8f0; border-radius: 20px;"></div>
+                </div>
+            `;
+            
+            // สร้างรูป QR Code ใน div ที่เตรียมไว้
+            new QRCode(document.getElementById("qrCodeContainer"), {
+                text: bay,
+                width: 350,
+                height: 350,
+                colorDark : "#0f172a",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+
+            closePrintSelectorModal(); 
+            // หน่วงเวลาให้ไลบรารีวาดรูป QR เสร็จก่อนสั่งพิมพ์
+            setTimeout(() => window.print(), 800);
+        }
+
+        function doPrint(a) {
+            const items = stockData.filter(i => i.AisleBay === a); 
+            let p = document.getElementById('printArea');
+            if(!p) { 
+                p = document.createElement('div'); 
+                p.id = 'printArea'; 
+                document.body.appendChild(p); 
+            }
+            
+            const rows = items.map(i => `
+                <tr>
+                    <td style="padding:5px;text-align:center">${i.ItemNo}</td>
+                    <td style="padding:5px">${i.Description}</td>
+                    <td style="padding:5px;text-align:center;font-weight:bold">${i.Qty}</td>
+                </tr>
+            `).join('');
+            
+            p.innerHTML = `
+                <div style="padding:20px; font-family:sans-serif">
+                    <h2 style="text-align:center">สต๊อก ${a}</h2>
+                    <table style="width:100%; border-collapse:collapse; margin-top:20px" border="1">
+                        <tr><th>Item</th><th>Desc</th><th>Qty</th></tr>
+                        ${rows}
+                    </table>
+                </div>
+            `;
+            
+            closePrintSelectorModal(); 
+            setTimeout(() => window.print(), 500);
+        }
+
+
+        /* ==========================================================================
+         * 18. APPLICATION INITIALIZATION & EVENT LISTENERS
+         * ========================================================================== */
+        function saveLocalQueues() {
+            localStorage.setItem(LS_PENDING_KEY, JSON.stringify(pendingItems));
+            localStorage.setItem(LS_QA_PENDING_KEY, JSON.stringify(qaPendingItems));
+        }
+
+        function loadLocalQueues() {
+            try {
+                const pStr = localStorage.getItem(LS_PENDING_KEY);
+                if(pStr) pendingItems = JSON.parse(pStr);
+                
+                const qaStr = localStorage.getItem(LS_QA_PENDING_KEY);
+                if(qaStr) qaPendingItems = JSON.parse(qaStr);
+                
+                updatePendingUI(); 
+                updateQaPendingUI();
+            } catch(e) {}
+        }
+
+        function setupInfiniteScroll() { 
+            document.getElementById('mainContainer').addEventListener('scroll', (e) => { 
+                if (e.target.scrollTop + e.target.clientHeight >= e.target.scrollHeight - 50 && document.getElementById('view-search').classList.contains('active')) {
+                    loadMoreItems(); 
+                }
+            }); 
+        }
+
+        // Window On Load Routine
+        window.onload = async () => {
+            setupInfiniteScroll();
+            setInterval(updateDigitalClock, 1000);
+            updateDigitalClock();
+            updateOfflineIndicator();
+            
+            await loadMasterDataToRAM(); 
+            updateMasterDataTimestampUI();
+            
+            await loadInventoryDataToRAM(); 
+            updateInventoryTimestampUI();
+
+            const savedUser = localStorage.getItem('savedUser');
+            if(savedUser) { 
+                myUserName = savedUser; 
+                currentDbUsername = localStorage.getItem('savedDbUsername') || '';
+                loginSuccess(true); 
+            }
+        };
+
+        // Visibility Change (App goes to background/foreground)
+        document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === "visible" && myUserName) {
+                pingActiveUser();
+                if (new Date().getTime() - lastAutoSync > 30000) { 
+                    lastAutoSync = new Date().getTime(); 
+                    if(navigator.onLine) syncDataFromSheets(true); 
+                }
+                processOfflineTasks();
+            }
+        });
+
+        // Event Listeners for DOM Elements
+        document.getElementById('addAisleBay').oninput = async function() { 
+            this.value = formatAisleStrict(this.value); 
+            if(this.value.length === 7) {
+                const existing = stockData.some(s => s.AisleBay === this.value);
+                if(existing) {
+                    const t = this.value; 
+                    this.value = ''; 
+                    await showAwesomeDialog({ title: "มีข้อมูลแล้ว", text: "ระบบจะพาไปหน้าแก้ไข", icon: "question", type: "alert" });
+                    navigateTo('search'); 
+                    document.getElementById('searchInput').value = t; 
+                    renderSearchList(t);
+                }
+            }
+        };
+
+        document.getElementById('tfTargetBay').oninput = function() { 
+            this.value = formatAisleStrict(this.value); 
+        };
+        
+        document.getElementById('addBarcode').onkeypress = (e) => { 
+            if(e.key === 'Enter') lookupProduct(e.target.value); 
+        };
+        
+        document.getElementById('qaInput').onkeypress = (e) => { 
+            if(e.key === 'Enter') lookupQuickAdd(e.target.value); 
+        };
+        
+        document.getElementById('transferBarcode').onkeypress = (e) => { 
+            if(e.key === 'Enter') lookupForTransfer(e.target.value); 
+        };
+    </script>
+</body>
+</html>
